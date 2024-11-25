@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Чат</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Заголовок */
+        .header {
+            background-color: #007bff;
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .header .page-actions button,
+        .header .search-container button,
+        .header .user-actions button {
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .header .page-actions button:hover,
+        .header .search-container button:hover,
+        .header .user-actions button:hover {
+            background-color: #0056b3; /* Цвет при наведении */
+        }
+
+        .header .search-container {
+        display: flex;
+        align-items: center;
+        margin: 0 10px;
+        padding: 5px;
+        background-color: #f8f8f8;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        transition: background-color 0.3s ease;
+        }
+
+        .header .search-container input {
+            flex-grow: 1;
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            padding: 8px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .header .search-container button {
+            margin-left: 5px;
+            padding: 8px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .header .search-container button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Основной контейнер для чата */
+        .chat-container {
+            display: flex;
+            flex: 1;
+            padding: 10px;
+        }
+
+        /* Список пользователей */
+        .user-list {
+            width: 200px;
+            border-right: 1px solid #ddd;
+            padding-right: 10px;
+        }
+
+        .user-list ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .user-list li {
+            padding: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .user-list li:hover {
+            background-color: #f0f0f0;
+        }
+
+        /* Окно чата */
+        .chat-window {
+            flex: 1;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+            margin-bottom: 10px;
+        }
+
+        .message {
+            margin: 5px 0;
+        }
+
+        .message.user1 {
+            text-align: left;
+            color: blue;
+        }
+
+        .message.user2 {
+            text-align: right;
+            color: green;
+        }
+
+        /* Поле ввода сообщения */
+        .input-container {
+            display: flex;
+        }
+
+        .input-container input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .input-container button {
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin-left: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Заголовок -->
+<div class="header">
+    <div class="page-actions" style="margin-right: auto;">
+        <form action="/search" method="get" style="display: inline;">
+            <button type="submit">Search</button>
+        </form>
+        <form action="/index" method="get" style="display: inline;">
+            <button type="submit">Chat</button>
+        </form>
+    </div>
+    <div class="search-container">
+        <form action="#" th:action="@{/search}" method="post">
+            <label>
+                <input type="text" name="searchInput" placeholder="Введите имя пользователя..." th:value="${searchInput}" />
+            </label>
+            <button><img src="/images/search-icon.png" alt="Поиск" style="width: 16px; height: 16px;"></button>
+        </form>
+    </div>
+    <div class="user-actions" style="margin-left: auto;">
+        <span th:text="${nickname}"></span>
+        <form action="/profile" method="get" style="display: inline;">
+            <button type="submit">Profile</button>
+        </form>
+        <form action="/logout" method="get" style="display: inline;">
+            <button type="submit">Exit</button>
+        </form>
+    </div>
+</div>
+
+<!-- Основной контейнер для чата -->
+<div class="chat-container">
+    <!-- Список пользователей -->
+    <div class="user-list">
+        <h3>Пользователи</h3>
+        <ul>
+            <li onclick="selectUser  ('User   1')">User   1</li>
+            <li onclick="selectUser  ('User   2')">User   2</li>
+            <li onclick="selectUser  ('User   3')">User   3</li>
+        </ul>
+    </div>
+
+    <!-- Окно чата -->
+    <div class="chat-window">
+        <div class="messages" id="messages">
+            <div class="message user1">Привет, как дела?</div>
+            <div class="message user2">Все хорошо, а у тебя?</div>
+        </div>
+        <div class="input-container">
+            <input type="text" id="messageInput" placeholder="Введите сообщение...">
+            <button onclick="sendMessage()">Отправить</button>
+        </div>
+    </div>
+</div>
+</body>
+</html>
