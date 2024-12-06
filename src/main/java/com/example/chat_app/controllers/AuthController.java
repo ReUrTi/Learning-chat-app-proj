@@ -7,11 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.security.Principal;
 
@@ -24,7 +21,7 @@ public class AuthController {
     @GetMapping("/register")
     public String showRegistrationForm(Principal principal) {
         if (principal != null)
-            return "redirect:/index";
+            return "index";
 
         return "register";
     }
@@ -40,21 +37,26 @@ public class AuthController {
     }
 
     @GetMapping("/login")
-    public String showLoginForm(Model model, Principal principal) {
-        if (principal != null)
-            return "redirect:/index";
+    public String showLoginForm(Model model, Principal principal, HttpSession session) {
+        if (principal != null) {
+//            session.setAttribute("nickname", userService.getNicknameByUsername(principal.getName()));
+//            session.setAttribute("userIde", userService.getUserIdByUsername(principal.getName()));
+            //model.addAttribute("nickname", session.getAttribute("nickname"));
+            return "index";
+        }
         return "login";
     }
 
     @PostMapping("/login")
-    public String login(@ModelAttribute User user, Model model) {
-        User authenticatedUser = userService.authenticate(user.getUsername(), user.getPassword());
+    public String login(@RequestParam String username, @RequestParam String password, Model model, HttpSession session, Principal principal) {
+        //User authenticatedUser =
+        userService.authenticate(username, password);
         return "login";
     }
 
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
-        return "login";
+        return "redirect:/login";
     }
 }

@@ -1,11 +1,14 @@
 package com.example.chat_app.service;
 
 import com.example.chat_app.model.User;
+import com.example.chat_app.model.UserDTO;
 import com.example.chat_app.repository.UserRepository;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.net.http.HttpRequest;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,13 +39,20 @@ public class UserService {
         return null;
     }
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+//    public String getNicknameByUsername(String username) {
+//        return userRepository.getNicknameByUsername(username);
+//    }
+
+//    public Long getUserIdByUsername(String username) {
+//        Optional<User> userOptional = userRepository.findByUsername(username);
+//        return userOptional.map(User::getId).orElse(null);
+//    }
+
+    public List<UserDTO> findUsersByNickname(String prefix) {
+        return userRepository.findByNicknameLikeIgnoreCase(prefix);
     }
 
-    public String getNicknameByUsername(String username) {
-        Optional<User> userOptional = userRepository.findByUsername(username);
-        return userOptional.map(User::getNickname).orElse(null);
+    public UserDTO getUserDTOByUsername(String username) {
+        return userRepository.getUserDTOByUsername(username);
     }
-
 }
