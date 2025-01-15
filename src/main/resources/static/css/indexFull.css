@@ -1,0 +1,226 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+
+}
+
+.header {
+    background-color: #007bff;
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+}
+
+.header .page-actions button,
+.header .user-actions button {
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: 5px;
+    transition: background-color 0.3s;
+}
+
+.header .page-actions button:hover,
+.header .user-actions button:hover {
+    background-color: #0056b3; /* Цвет при наведении */
+}
+
+.header .search-container {
+    display: flex;
+    align-items: center;
+    margin: 0 10px;
+    padding: 5px;
+    background-color: #f8f8f8;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+}
+
+.header .search-container input {
+    flex-grow: 1;
+    width: 300px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    padding: 8px;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.header .search-container button {
+    margin-left: 5px;
+    padding: 8px 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.header .search-container button:hover {
+    background-color: #0056b3;
+}
+
+.main {
+    display: flex;
+    flex-grow: 1; /* Занимает все оставшееся пространство */
+}
+
+.side {
+    flex: 1; /* Занимает равную долю */
+    padding: 10px;
+    background-color: #f0f0f0;
+    border-right: 1px solid #ccc;
+    position: relative;
+}
+
+.center {
+    flex: 2; /* Занимает в два раза больше пространства */
+    padding: 10px;
+    background-color: #e0e0e0;
+    position: relative; /* Убедитесь, что это задано */
+    z-index: 1; /* Убедитесь, что z-index ниже, чем у dropdown */
+    width: 90vh;
+}
+
+.dropdown {
+    display: none; /* Скрыто по умолчанию */
+    position: absolute; /* Позиционирование относительно родителя */
+    left: 0; /* Сдвинуть влево от кнопки */
+    top: 100%; /* Под кнопкой */
+    background-color: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    z-index: 2000; /* Убедитесь, что z-index выше других элементов */
+}
+.dropdown-item {
+    padding: 10px;
+    cursor: pointer;
+}
+.dropdown-item:hover {
+    background-color: #f0f0f0;
+}
+
+.chat-div {
+    padding: 5px;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-lastMessage-info {
+    display: flex;
+    padding: 10px;
+    padding-top: 5px;
+}
+.chat-lastMessage-text {
+    flex: 1;
+}
+.chat-lastMessage-date {
+    flex: 1; /* Элемент занимает оставшееся пространство */
+    color: gray; /* Устанавливаем серый цвет текста */
+    text-align: right; /* Выравниваем текст по правому краю */
+}
+
+.chat-info {
+    flex: 1; /* Занимает доступное пространство */
+    margin-right: 10px; /* Отступ справа */
+    /* Дополнительные стили для chatInfo */
+}
+
+.chat-other {
+    position: relative; /* Относительное позиционирование для дочерних элементов */
+}
+
+.chat-dropdown {
+    position: absolute; /* Абсолютное позиционирование для dropdown */
+    top: 0; /* В верхнем углу */
+    right: 0; /* Справа */
+    padding: 10px;
+}
+
+.chat-unread {
+    position: absolute; /* Абсолютное позиционирование для unread */
+    top: 30px; /* Под dropdown, настройте по необходимости */
+    right: 0; /* Справа */
+    padding: 10px;
+    color: red;
+}
+.chat-main {
+    display: flex; /* Используем flexbox для расположения элементов */
+    justify-content: space-between; /* Разделяем элементы по краям */
+    align-items: flex-start;
+    padding: 10px;
+}
+
+.no-chat {
+    color: gray;
+    font-size: 24px;
+    text-align: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.active-chat {
+    display: flex;
+    flex-direction: column;
+    height: 90vh;
+}
+
+.up-interface {
+    padding: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.chat-info-div {
+    margin-left: -1px;
+    padding-left: 20px;
+}
+
+.options-div {
+    margin-left: auto;
+}
+
+.message-container {
+    flex-grow: 1;
+    background-color: white;
+    overflow-y: auto;
+    border-bottom: 1px solid #ccc;
+    display: flex;
+    flex-direction: column-reverse;
+    padding-bottom: 30px;
+}
+
+.input-container {
+
+}
+
+.message {
+    display: flex;
+    flex-direction: column;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%; /* Убедитесь, что сообщение не превышает ширину контейнера */
+    margin-top: 5px;
+    margin-right: 10px;
+    margin-bottom: 5px;
+    margin-left: 10px;
+}
+.message-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center
+}

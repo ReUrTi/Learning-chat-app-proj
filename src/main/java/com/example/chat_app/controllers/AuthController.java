@@ -1,11 +1,9 @@
 package com.example.chat_app.controllers;
 
 import com.example.chat_app.model.User;
-import com.example.chat_app.service.UserService;
+import com.example.chat_app.service.AllService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
@@ -16,7 +14,7 @@ import java.security.Principal;
 public class AuthController {
 
     @Autowired
-    private UserService userService;
+    private AllService allService;
 
     @GetMapping("/register")
     public String showRegistrationForm(Principal principal) {
@@ -28,7 +26,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public String registerUser (@RequestParam String username, @RequestParam String password, Model model) {
-        String result = userService.register(new User(username, password));
+        String result = allService.register(new User(username, password));
         if (result.equals("Username already exists"))
             model.addAttribute("errorMessage", result);
         else
@@ -50,7 +48,7 @@ public class AuthController {
     @PostMapping("/login")
     public String login(@RequestParam String username, @RequestParam String password, Model model, HttpSession session, Principal principal) {
         //User authenticatedUser =
-        userService.authenticate(username, password);
+        allService.authenticate(username, password);
         return "login";
     }
 

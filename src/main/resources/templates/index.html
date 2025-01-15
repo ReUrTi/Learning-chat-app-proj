@@ -1,101 +1,13 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
+
     <title>Домашняя страница</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-
-        /* Заголовок */
-        .header {
-            background-color: #007bff;
-            color: white;
-            display: flex;
-            align-items: center;
-            padding: 10px;
-        }
-
-        .header .page-actions button,
-        .header .user-actions button {
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-left: 5px;
-            transition: background-color 0.3s;
-        }
-
-        .header .page-actions button:hover,
-        .header .user-actions button:hover {
-            background-color: #0056b3; /* Цвет при наведении */
-        }
-
-        .header .search-container {
-            display: flex;
-            align-items: center;
-            margin: 0 10px;
-            padding: 5px;
-            background-color: #f8f8f8;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.3s ease;
-        }
-
-        .header .search-container input {
-            flex-grow: 1;
-            width: 300px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            padding: 8px;
-            font-size: 16px;
-            outline: none;
-            transition: border-color 0.3s ease;
-        }
-
-        .header .search-container button {
-            margin-left: 5px;
-            padding: 8px 12px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .header .search-container button:hover {
-            background-color: #0056b3;
-        }
-
-        .main {
-            display: flex;
-            flex-grow: 1; /* Занимает все оставшееся пространство */
-        }
-
-        .side {
-            flex: 1; /* Занимает равную долю */
-            padding: 10px;
-            background-color: #f0f0f0;
-            border-right: 1px solid #ccc;
-        }
-
-        .center {
-            flex: 2; /* Занимает в два раза больше пространства */
-            padding: 10px;
-            background-color: #e0e0e0;
-        }
-    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.0/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <link rel="stylesheet" href="/css/indexFull.css">
 </head>
 <body>
-<!-- Заголовок -->
 <div class="header">
     <div class="page-actions" style="margin-right: auto;">
         <form action="/index" method="get" style="display: inline;">
@@ -119,20 +31,19 @@
 </div>
 
 <div class="main">
-    <div class="side">Левая часть</div>
-    <div class="center">Центральная часть (больше всего места)</div>
+    <div class="side" id="chat-list" style="overflow-y: auto;"></div>
+    <div class="center" id="chat-container"></div>
     <div class="side">Правая часть</div>
 </div>
 
 <script>
-    createSearchContainer();
 
     function createSearchContainer() {
         const searchContainer = document.getElementById('search-container');
 
         const form = document.createElement('form');
-        form.action = "/search"; // Устанавливаем URL действия
-        form.method = "get"; // Устанавливаем метод
+        form.action = "/search";
+        form.method = "get";
 
         const inputLabel = document.createElement('label');
 
@@ -146,38 +57,34 @@
 
         const img = document.createElement('img');
         img.src = "/images/search-icon.png";
-        img.alt = "Поиск";
+        img.alt = "Search";
         img.style.width = "16px";
         img.style.height = "16px";
 
         form.onsubmit = function(event) {
             event.preventDefault(); // Предотвращаем стандартную отправку формы
 
-            // Получаем обрезанное значение ввода
             const trimmedInput = input.value.trim();
 
-            // Проверка на пустой ввод, наличие пробелов и недопустимых символов
-            const validInputPattern = /^[a-zA-Z0-9-_]+$/; // Регулярное выражение для проверки
+            const validInputPattern = /^[a-zA-Z0-9-_]+$/;
 
             if (trimmedInput === "") {
-                alert("Пожалуйста, введите значение в поле поиска."); // Уведомляем пользователя
-                return; // Выход из функции, чтобы предотвратить отправку формы
+                alert("Пожалуйста, введите значение в поле поиска.");
+                return;
             }
 
             if (!validInputPattern.test(trimmedInput)) {
-                alert("Пожалуйста, используйте только буквы, цифры, '-' и '_' в поле поиска."); // Уведомляем пользователя
-                return; // Выход из функции, чтобы предотвратить отправку формы
+                alert("Пожалуйста, используйте только буквы, цифры, '-' и '_' в поле поиска.");
+                return;
             }
 
             if (trimmedInput.length > 30) {
-                alert("Пожалуйста, введите не более 30 символов."); // Уведомляем пользователя
-                return; // Выход из функции, чтобы предотвратить отправку формы
+                alert("Пожалуйста, введите не более 30 символов.");
+                return;
             }
 
-            // Если ввод валиден, устанавливаем значение ввода в обрезанное значение
             input.value = trimmedInput;
 
-            // Программно отправляем форму
             form.submit();
         };
 
@@ -187,6 +94,366 @@
         form.appendChild(button);
         searchContainer.appendChild(form);
     }
+
+<!--  Chat list handler  -->
+
+    var stompClient = null;
+    var reconnectInterval = 5000;
+    var pingInterval = 30000;
+    var pingTimeout = 10000;
+    const chatListContainer = document.getElementById('chat-list');
+    const authUserId = [[${authUserId}]];
+    const authUserNickname = '[[${nickname}]]';
+    let currentPage = 1;
+    const itemsPerPage = 20;
+    let loading = false;
+    let hasMoreItems = true;
+
+    function connect() {
+        var socket = new SockJS('/ws');
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function (frame) {
+            console.log('Connected: ' + frame);
+            loadItems();
+            startPing();
+            stompClient.subscribe('/topic/convo/getMS', function (message) {});
+            stompClient.subscribe('/topic/chats', function (message) {});
+
+        }, function (error) {
+            console.error('Connection error: ' + error);
+            setTimeout(connect, reconnectInterval);
+        });
+
+        socket.onclose = function () {
+            console.error('Connection lost. Reconnecting...');
+            setTimeout(connect, reconnectInterval);
+        };
+    }
+
+    async function loadItems() {
+        if (loading || !hasMoreItems) return;
+
+        loading = true;
+        try {
+            const response = await fetch(`api/chats?page=${currentPage}&limit=${itemsPerPage}`);
+            const data = await response.json();
+
+            if (data.length === 0) {
+                hasMoreItems = false;
+                chatListContainer.removeEventListener('scroll', checkScroll);
+            } else {
+                data.forEach(chat => {
+                    renderChat(chat);
+                });
+                currentPage++;
+            }
+        } catch (error) {
+            console.error("Ошибка при загрузке данных:", error);
+        } finally {
+            loading = false;
+        }
+    }
+
+    function renderChat(chat) {
+        const chatElementId = `chatId${chat.chatId}`
+        const chatElement = document.querySelector(`.side#chat-list #${chatElementId}`);
+        if (chatElement) {
+            return;
+        }
+
+        const chatDiv = document.createElement('div');
+        chatDiv.className = 'chat-div';
+        chatDiv.id = chatElementId;
+        chatDiv.addEventListener('click', () => {
+            // Например, открыть новое окно или отобразить содержимое чата
+            // window.open('url_to_chat', '_blank');
+        });
+        chatDiv.addEventListener('mouseover', () => {
+            chatDiv.style.backgroundColor = '#e0e0e0';
+        });
+        chatDiv.addEventListener('mouseout', () => {
+            chatDiv.style.backgroundColor = '#f0f0f0';
+        });
+
+        const chatMain = document.createElement('div');
+        chatMain.className = 'chat-main';
+        chatMain.style.position = 'relative';
+
+        const chatLastMessageInfo = document.createElement('div');
+        chatLastMessageInfo.className = 'chat-lastMessage-info';
+        chatLastMessageInfo.style.position = 'relative';
+
+        const chatLastMessageText = document.createElement('div');
+        chatLastMessageText.className = 'chat-lastMessage-text';
+        if(chat.lastMessage == null) {
+            chatLastMessageText.innerHTML = `
+                <span> </span>
+            `;
+        } else if(chat.lastMessageUserId === Number(authUserId)) {
+            chatLastMessageText.innerHTML = `
+                <span>You: ${chat.lastMessage}</span>
+            `;
+        } else {
+            chatLastMessageText.innerHTML = `
+                <span>${chat.lastMessage}</span>
+            `;
+        }
+
+        const chatLastMessageDate = document.createElement('div');
+        chatLastMessageDate.className = 'chat-lastMessage-date';
+        if(chat.lastMessageCreatedAt == null) {
+            chatLastMessageDate.innerHTML = `
+                <span> </span>
+            `;
+        } else {
+            chatLastMessageDate.innerHTML = `
+                <span>${chat.lastMessageCreatedAt}</span>
+            `;
+        }
+
+        const chatInfo = document.createElement('div');
+        chatInfo.className = 'chat-info';
+        chatInfo.innerHTML = `
+            <span>Nickname: ${chat.interlocutorNickname}</span><br>
+            <span>ID: ${chat.interlocutorId}</span>
+        `;
+
+        const chatOther = document.createElement('div');
+        chatOther.className = 'chat-other';
+
+        const chatDropdown = document.createElement('div');
+        chatOther.className = 'chat-dropdown';
+
+        const chatDropdownButton = document.createElement('button');
+        chatDropdownButton.innerText = '...';
+
+        const chatDropdownContainer = document.createElement('div');
+        chatDropdownContainer.className = 'dropdown';
+        chatDropdownContainer.style.display = 'none';
+
+        const hideChatDiv = document.createElement('div');
+        hideChatDiv.className = 'dropdown-item';
+        hideChatDiv.innerText = 'Hide';
+        hideChatDiv.addEventListener('click', hideChat(                               ));
+        chatDropdownContainer.appendChild(hideChatDiv);
+
+        const blockChatDiv = document.createElement('div');
+        blockChatDiv.className = 'dropdown-item';
+        blockChatDiv.innerText = 'Block';
+        blockChatDiv.addEventListener('click', blockChat(                               ));
+        chatDropdownContainer.appendChild(blockChatDiv);
+
+        let hideTimeout;
+        chatDropdownButton.addEventListener('mouseenter', () => {
+            clearTimeout(hideTimeout); // Очищаем таймер, если он установлен
+            chatDropdownContainer.style.display = 'block'; // Показываем меню
+        });
+        chatDropdownButton.addEventListener('mouseleave', () => {
+            hideTimeout = setTimeout(() => {
+                chatDropdownContainer.style.display = 'none';
+            }, 1000);
+        });
+        chatDropdownContainer.addEventListener('mouseenter', () => {
+            clearTimeout(hideTimeout);
+            chatDropdownContainer.style.display = 'block';
+        });
+        chatDropdownContainer.addEventListener('mouseleave', () => {
+            hideTimeout = setTimeout(() => {
+                chatDropdownContainer.style.display = 'none';
+            }, 1000);
+        });
+
+        const chatUnread = document.createElement('div');
+        chatUnread.className = 'chat-unread';
+        if(chat.unreadCount >= 100) {
+            chatUnread.innerHTML = `
+                <span>99+</span>
+            `;
+        } else if (chat.unreadCount > 0) {
+            chatUnread.innerHTML = `
+                <span>${chat.unreadCount}</span>
+            `;
+        }
+
+        chatDropdown.appendChild(chatDropdownButton);
+        chatDropdown.appendChild(chatDropdownContainer);
+        chatOther.appendChild(chatDropdown);
+        chatOther.appendChild(chatUnread);
+
+        chatMain.appendChild(chatInfo);
+        chatMain.appendChild(chatOther);
+
+        chatLastMessageInfo.appendChild(chatLastMessageText);
+        chatLastMessageInfo.appendChild(chatLastMessageDate);
+
+        chatDiv.appendChild(chatMain);
+        chatDiv.appendChild(chatLastMessageInfo);
+
+        chatListContainer.appendChild(chatDiv);
+    }
+
+    function hideChat() {
+    }
+    function blockChat() {
+    }
+
+    var pingTimeoutId;
+    function startPing() {
+        pingIntervalId = setInterval(function () {
+            if (stompClient && stompClient.connected) {
+                stompClient.send('/app/ping', {}, JSON.stringify({}));
+                pingTimeoutId = setTimeout(function () {
+                    console.warn('Ping timeout, reconnecting...');
+                    stompClient.disconnect();
+                }, pingTimeout);
+            }
+        }, pingInterval);
+        stompClient.subscribe('/topic/pong', function (message) {
+            clearTimeout(pingTimeoutId);
+            console.log('Received pong response from server:', message);
+        });
+    }
+
+    function checkScroll() {
+        const scrollPosition = chatListContainer.scrollTop + chatListContainer.clientHeight;
+        const threshold = chatListContainer.scrollHeight - 100;
+
+        if (scrollPosition >= threshold) {
+            loadItems();
+        }
+    }
+    chatListContainer.addEventListener('scroll', checkScroll);
+
+<!--  Message-container handler  -->
+
+    var requestedChatId = [[${requestedChatId} != null ? ${requestedChatId} : 'null']];
+    const chatContainer = document.getElementById('chat-container');
+
+    function showEmpty() {
+        const chatContainer = document.getElementById('chat-container');
+
+        const noChat = document.createElement('div');
+        noChat.innerHTML = `Open the existing chat, or find it using the search.`;
+        noChat.className = 'no-chat';
+
+        chatContainer.appendChild(noChat);
+    }
+
+    function showChat() {
+        const chatContainer = document.getElementById('chat-container');
+
+        const activeChat = document.createElement('div');
+        activeChat.className = 'active-chat';
+        activeChat.id = `active-chat-${requestedChatId}`;
+
+        upInterface = document.createElement('div');
+        upInterface.className = 'up-interface';
+
+        closeButtonDiv = document.createElement('div');
+        closeButtonDiv.className = 'close-button-div';
+
+        closeChatButton = document.createElement('button');
+        closeChatButton.className = 'close-chat-button';
+        closeChatButton.innerHTML = `
+            <button onclick="">X</button>
+        `;
+
+        chatInfoDiv = document.createElement('div');
+        chatInfoDiv.className = 'chat-info-div';
+        chatInfoDiv.innerHTML = `Testing. ChatId: ${requestedChatId}`;
+
+        optionsDiv = document.createElement('div');
+        optionsDiv.className = 'options-div';
+
+        optionsChatButton = document.createElement('button');
+        optionsChatButton.className = 'options-chat-button';
+        optionsChatButton.innerHTML = `
+            <button onclick="">...</button>
+        `;
+
+        messagesContainer = document.createElement('div');
+        messagesContainer.className = 'message-container';
+        messagesContainer.id = 'message-container-id';
+
+        innerMessagesContainer = document.createElement('div');
+
+        inputInterface = document.createElement('div');
+        inputInterface.className = 'input-container';
+
+        const messageInput = document.createElement('input');
+        messageInput.type = 'text';
+        messageInput.placeholder = 'Message...';
+        inputInterface.appendChild(messageInput);
+
+        const sendButton = document.createElement('button');
+        sendButton.textContent = 'Send';
+        inputInterface.appendChild(sendButton);
+
+        sendButton.addEventListener('click', () => {
+            const messageText = messageInput.value.trim();
+            if (messageText) {
+                addMessageToChat(messageText);
+                messageInput.value = '';
+                messageInput.focus();
+            }
+        });
+        messageInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendButton.click();
+            }
+        });
+        function addMessageToChat(text) {
+            const messageElement = document.createElement('div');
+            const messageInfo = document.createElement('div');
+            messageInfo.className = 'message-info';
+            const messageText = document.createElement('div');
+            const messageUser = document.createElement('div');
+            const messageStatus = document.createElement('div');
+            const messageTime = document.createElement('div');
+
+            messageElement.classList.add('message');
+            messageText.textContent = text;
+            messageTime.textContent = new Date().toLocaleTimeString();
+            messageUser.textContent = `${authUserNickname}`;
+            messageElement.appendChild(messageInfo);
+            messageInfo.appendChild(messageUser);
+            messageInfo.appendChild(messageStatus);
+            messageInfo.appendChild(messageTime);
+            messageElement.appendChild(messageText);
+
+            messagesContainer.prepend(messageElement);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        upInterface.appendChild(closeButtonDiv);
+        closeButtonDiv.appendChild(closeChatButton);
+        upInterface.appendChild(chatInfoDiv);
+        upInterface.appendChild(optionsDiv);
+        optionsDiv.appendChild(optionsChatButton);
+
+        messagesContainer.appendChild(innerMessagesContainer);
+        messagesContainer.className = 'message-container';
+
+        activeChat.appendChild(upInterface);
+        activeChat.appendChild(messagesContainer);
+        activeChat.appendChild(inputInterface);
+
+        chatContainer.appendChild(activeChat);
+    }
+
+    window.onload = function() {
+        createSearchContainer();
+        connect();
+
+        if(requestedChatId == null){
+            showEmpty();
+        } else {
+            showChat();
+        }
+
+    };
 </script>
 </body>
 </html>

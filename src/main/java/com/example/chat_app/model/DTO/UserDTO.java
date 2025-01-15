@@ -1,4 +1,4 @@
-package com.example.chat_app.model;
+package com.example.chat_app.model.DTO;
 
 public class UserDTO {
     private Long id;
