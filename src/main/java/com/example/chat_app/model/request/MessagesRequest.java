@@ -3,17 +3,8 @@ package com.example.chat_app.model.request;
 import java.sql.Timestamp;
 
 public class MessagesRequest {
-    private Long chatId;
-    private Long limit;
+    private int limit;
     private Timestamp lastLoadedCreatedAt;
-
-    public Long getChatId() {
-        return chatId;
-    }
-
-    public void setChatId(Long chatId) {
-        this.chatId = chatId;
-    }
 
     public Timestamp getLastLoadedCreatedAt() {
         return lastLoadedCreatedAt;
@@ -23,13 +14,13 @@ public class MessagesRequest {
         this.lastLoadedCreatedAt = lastLoadedCreatedAt;
     }
 
-    public Long getLimit() {
+    public int getLimit() {
         return limit;
     }
 
-    public void setLimit(Long limit) {
+    public void setLimit(int limit) {
         this.limit = limit;
     }
 
-    // Геттеры и сеттеры
+
 }

@@ -12,12 +12,10 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsername(String username);
 
-    @Query("SELECT new com.example.chat_app.DTO.UserDTO(u.id, u.nickname) FROM User u WHERE LOWER(u.nickname) LIKE LOWER(CONCAT(:prefix, '%'))")
+    @Query("SELECT new com.example.chat_app.model.DTO.UserDTO(u.id, u.nickname) FROM User u WHERE LOWER(u.nickname) LIKE LOWER(CONCAT(:prefix, '%'))")
     List<UserDTO> findByNicknameLikeIgnoreCase(@Param("prefix") String prefix);
 
-//    @Query("SELECT u.nickname FROM User u WHERE u.username = :username")
-//    String getNicknameByUsername(@Param("username") String username);
 
-    @Query("SELECT new com.example.chat_app.DTO.UserDTO(u.id, u.nickname) FROM User u WHERE u.username = :username")
+    @Query("SELECT new com.example.chat_app.model.DTO.UserDTO(u.id, u.nickname) FROM User u WHERE u.username = :username")
     UserDTO getUserDTOByUsername(@Param("username") String username);
 }

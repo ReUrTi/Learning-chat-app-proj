@@ -1,6 +1,7 @@
 package com.example.chat_app.model.response;
 
 import com.example.chat_app.model.Message;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -13,5 +14,4 @@ public class MessagesResponse {
         this.errorMessage = errorMessage;
     }
 
-    // Геттеры и сеттеры
 }

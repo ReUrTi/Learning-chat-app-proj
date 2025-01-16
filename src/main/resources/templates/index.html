@@ -104,8 +104,8 @@
     const chatListContainer = document.getElementById('chat-list');
     const authUserId = [[${authUserId}]];
     const authUserNickname = '[[${nickname}]]';
-    let currentPage = 1;
-    const itemsPerPage = 20;
+    let lastLoadedChatDate = new Date().toISOString().slice(0, 19).replace("T", " ");
+    let lastLoadedMessageDate = new Date().toISOString().slice(0, 19).replace("T", " ");
     let loading = false;
     let hasMoreItems = true;
 
@@ -115,10 +115,11 @@
 
         stompClient.connect({}, function (frame) {
             console.log('Connected: ' + frame);
-            loadItems();
             startPing();
             stompClient.subscribe('/topic/convo/getMS', function (message) {});
-            stompClient.subscribe('/topic/chats', function (message) {});
+            stompClient.subscribe('/topic/chats', handleChatMessages);
+
+            loadItems();
 
         }, function (error) {
             console.error('Connection error: ' + error);
@@ -131,23 +132,32 @@
         };
     }
 
+    function handleChatMessages(response) {
+        const data = JSON.parse(response.body);
+        console.log("Received response:", data);
+
+        if (data.chats.length === 0) {
+            hasMoreItems = false;
+            chatListContainer.removeEventListener('scroll', checkScroll);
+        } else {
+            data.chats.forEach(chat => {
+                renderChat(chat);
+            });
+        }
+    }
+
     async function loadItems() {
         if (loading || !hasMoreItems) return;
 
         loading = true;
         try {
-            const response = await fetch(`api/chats?page=${currentPage}&limit=${itemsPerPage}`);
-            const data = await response.json();
+            const request = {
+                limit: 20,
+                lastLoaded: lastLoadedChatDate,
+                userId: authUserId
+            };
 
-            if (data.length === 0) {
-                hasMoreItems = false;
-                chatListContainer.removeEventListener('scroll', checkScroll);
-            } else {
-                data.forEach(chat => {
-                    renderChat(chat);
-                });
-                currentPage++;
-            }
+            stompClient.send('/app/chats/get', { 'Content-Type': 'application/json' }, JSON.stringify(request));
         } catch (error) {
             console.error("Ошибка при загрузке данных:", error);
         } finally {
@@ -208,7 +218,7 @@
             `;
         } else {
             chatLastMessageDate.innerHTML = `
-                <span>${chat.lastMessageCreatedAt}</span>
+                <span>${chat.lastMessageDate}</span>
             `;
         }
 

@@ -21,7 +21,7 @@ public class MessageService {
         return messageRepository.findByChatId(chatId, pageable);
     }
 
-    public List<Message> getMessagesByChatIdWithCursor(Long chatId, Long limit, Timestamp lastLoadedCreatedAt) {
-        return messageRepository.findByChatIdWithCursor(chatId, lastLoadedCreatedAt, limit);
-    }
+//    public List<Message> getMessagesByChatIdWithCursor(Long chatId, int limit, Timestamp lastLoadedCreatedAt) {
+//        return messageRepository.findByChatIdWithCursor(chatId, lastLoadedCreatedAt, limit);
+//    }
 }

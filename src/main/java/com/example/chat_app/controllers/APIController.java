@@ -49,12 +49,12 @@ public class APIController {
         return allService.showOrCreateChat(authUserId, userId);
     }
 
-    @GetMapping("/api/chats")
-    public List<ChatDTO> getChats(@RequestParam int page, @RequestParam int limit, HttpSession session) {
-        Long authUserId = (Long) session.getAttribute("userId");
-        if(authUserId == null) return Collections.emptyList(); ;
-        int offset = (page - 1) * limit;
-        List<ChatDTO> chatDTOList = chatService.getChats(authUserId, limit, offset);
-        return chatDTOList;
-    }
+//    @GetMapping("/api/chats")
+//    public List<ChatDTO> getChats(@RequestParam int page, @RequestParam int limit, HttpSession session) {
+//        Long authUserId = (Long) session.getAttribute("userId");
+//        if(authUserId == null) return Collections.emptyList(); ;
+//        int offset = (page - 1) * limit;
+//        List<ChatDTO> chatDTOList = chatService.getChats(authUserId, limit, offset);
+//        return chatDTOList;
+//    }
 }

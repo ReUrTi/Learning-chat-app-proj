@@ -4,15 +4,28 @@ import java.sql.Timestamp;
 
 public class ChatDTO {
     private Long chatId;
-//    private Timestamp lastUpdated;
     private String lastMessage;
     private Long lastMessageUserId;
     private int unreadCount;
     private Long interlocutorId;
     private String interlocutorNickname;
-    private Timestamp lastMessageCreatedAt;
+    private Timestamp lastMessageDate;
+    private Long lastMessageId;
+    private boolean lastMessageIsRead;
 
-    // Геттеры и сеттеры
+    public ChatDTO(Long chatId, String lastMessage, Long lastMessageUserId,
+                   int unreadCount, Long interlocutorId, String interlocutorNickname, Timestamp lastMessageDate, Long lastMessageId, boolean lastMessageIsRead){
+        this.chatId = chatId;
+        this.lastMessage = lastMessage;
+        this.lastMessageUserId = lastMessageUserId;
+        this.unreadCount = unreadCount;
+        this.interlocutorId = interlocutorId;
+        this.interlocutorNickname = interlocutorNickname;
+        this.lastMessageDate = lastMessageDate;
+        this.lastMessageId = lastMessageId;
+        this.lastMessageIsRead = lastMessageIsRead;
+    }
+
     public Long getChatId() {
         return chatId;
     }
@@ -20,14 +33,6 @@ public class ChatDTO {
     public void setChatId(Long chatId) {
         this.chatId = chatId;
     }
-
-//    public Timestamp getLastUpdated() {
-//        return lastUpdated;
-//    }
-//
-//    public void setLastUpdated(Timestamp lastUpdated) {
-//        this.lastUpdated = lastUpdated;
-//    }
 
     public String getLastMessage() {
         return lastMessage;
@@ -69,11 +74,27 @@ public class ChatDTO {
         this.interlocutorNickname = interlocutorNickname;
     }
 
-    public Timestamp getLastMessageCreatedAt() {
-        return lastMessageCreatedAt;
+    public Timestamp getLastMessageDate() {
+        return lastMessageDate;
     }
 
-    public void setLastMessageCreatedAt(Timestamp lastMessageCreatedAt) {
-        this.lastMessageCreatedAt = lastMessageCreatedAt;
+    public void setLastMessageDate(Timestamp lastMessageCreatedAt) {
+        this.lastMessageDate = lastMessageDate;
+    }
+
+    public Long getLastMessageId() {
+        return lastMessageId;
+    }
+
+    public void setLastMessageId(Long lastMessageId) {
+        this.lastMessageId = lastMessageId;
+    }
+
+    public boolean isLastMessageIsRead() {
+        return lastMessageIsRead;
+    }
+
+    public void setLastMessageIsRead(boolean lastMessageIsRead) {
+        this.lastMessageIsRead = lastMessageIsRead;
     }
 }

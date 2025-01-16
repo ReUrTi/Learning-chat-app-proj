@@ -1,27 +1,27 @@
 package com.example.chat_app.controllers;
 
+import com.example.chat_app.model.request.ChatsRequest;
 import com.example.chat_app.model.request.MessagesRequest;
+import com.example.chat_app.model.response.ChatsResponse;
 import com.example.chat_app.model.response.MessagesResponse;
-import com.example.chat_app.model.Message;
-import com.example.chat_app.service.ChatService;
-import com.example.chat_app.service.MessageService;
-import com.example.chat_app.service.response.MessagesResponseService;
+import com.example.chat_app.service.response.ChatsResponseService;
+//import com.example.chat_app.service.response.MessagesResponseService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 public class SocketController {
 
-    @Autowired
-    ChatService chatService;
+//    @Autowired
+//    MessagesResponseService messagesResponseService;
 
     @Autowired
-    MessagesResponseService messagesResponseService;
+    ChatsResponseService chatsResponseService;
 
     @MessageMapping("/ping")
     @SendTo("/topic/pong")
@@ -29,19 +29,24 @@ public class SocketController {
         return "pong";
     }
 
-    @MessageMapping("/convo/messages")
+    @MessageMapping("/convo/{chatId}/messages")
     @SendTo("/topic/convo/getMS")
-    public MessagesResponse getMessagesFrom(@Payload MessagesRequest request) {
-        try {
-            return messagesResponseService.getMessagesFrom(request);
-        } catch (Exception e) {
-            return new MessagesResponse(null, "Error: " + e.getMessage());
-        }
+    public MessagesResponse getMessagesFrom(@Payload MessagesRequest request, @PathVariable Long chatId) {
+//        try {
+//            return messagesResponseService.getMessagesFrom(request, chatId);
+//        } catch (Exception e) {
+//            return new MessagesResponse(null, "Error: " + e.getMessage());
+//        }
+        return null;
     }
 
     @MessageMapping("/chats/get")
     @SendTo("/topic/chats")
-    public String getChats() {
-        return "pong";
+    public ChatsResponse getChats(@Payload ChatsRequest request) {
+        try {
+            return chatsResponseService.getChats(request);
+        } catch (Exception e) {
+            return new ChatsResponse(null, "Error: " + e.getMessage());
+        }
     }
 }
