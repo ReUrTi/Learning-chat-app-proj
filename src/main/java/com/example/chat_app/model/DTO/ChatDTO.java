@@ -14,7 +14,8 @@ public class ChatDTO {
     private boolean lastMessageIsRead;
 
     public ChatDTO(Long chatId, String lastMessage, Long lastMessageUserId,
-                   int unreadCount, Long interlocutorId, String interlocutorNickname, Timestamp lastMessageDate, Long lastMessageId, boolean lastMessageIsRead){
+                   int unreadCount, Long interlocutorId, String interlocutorNickname,
+                   Timestamp lastMessageDate, Long lastMessageId, boolean lastMessageIsRead){
         this.chatId = chatId;
         this.lastMessage = lastMessage;
         this.lastMessageUserId = lastMessageUserId;

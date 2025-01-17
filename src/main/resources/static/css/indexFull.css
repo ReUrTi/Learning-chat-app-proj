@@ -111,7 +111,7 @@ body {
 }
 
 .chat-div {
-    padding: 5px;
+    padding: 10px;
     cursor: pointer;
     position: relative;
     display: flex;

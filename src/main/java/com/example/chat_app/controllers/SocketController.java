@@ -46,7 +46,7 @@ public class SocketController {
         try {
             return chatsResponseService.getChats(request);
         } catch (Exception e) {
-            return new ChatsResponse(null, "Error: " + e.getMessage());
+            return new ChatsResponse(null, "Error: " + e.getMessage(), null);
         }
     }
 }

@@ -21,20 +21,22 @@ public class ChatsResponseService {
         try{
             Timestamp lastLoadedTimestamp = Timestamp.valueOf(request.getLastLoaded());
             List<ChatDTO> chats = getChatsByUserIdWithCursor(request.getUserId(), lastLoadedTimestamp, request.getLimit());
-            System.out.println(chats.size());
-            System.out.println(request.getUserId());
-            return new ChatsResponse(chats, null);
+            Timestamp timestamp = null;
+            if(chats != null && chats.size() != 0) timestamp = chats.get(chats.size() - 1).getLastMessageDate();
+            ChatsResponse chatsResponse = new ChatsResponse(chats, null, timestamp);
+            return chatsResponse;
         }
         catch (IllegalArgumentException illegalEx) {
-            return new ChatsResponse(null, "Bad parrametrs: " + illegalEx.getMessage());
+            return new ChatsResponse(null, "Bad parrametrs: " + illegalEx.getMessage(), null);
         }catch (Exception e) {
-            return new ChatsResponse(null, "Unknown error: " + e.getMessage());
+            return new ChatsResponse(null, "Unknown error: " + e.getMessage(), null);
         }
     }
 
     public List<ChatDTO> getChatsByUserIdWithCursor(Long userId, Timestamp lastLoaded, int limit) {
         String sql = "SELECT a.id AS chatId, b.content, b.user_id as lastMessageUserId, " +
-                "(SELECT COUNT(c) FROM messages c WHERE c.chat_id = a.id AND c.is_read = false) AS unreadCount, " +
+                "CASE WHEN b.user_id = ? THEN 0 " +
+                "ELSE (SELECT COUNT(c) FROM messages c WHERE c.chat_id = a.id AND c.is_read = false AND c.user_id != ? ) END AS unreadCount, " +
                 "CASE WHEN a.user1_id = ? THEN a.user2_id ELSE a.user1_id END AS otherUserId, " +
                 "d.nickname, b.created_at, b.id as lastMessageId, b.is_read as isRead " +
                 "FROM private_chats a " +
@@ -45,7 +47,7 @@ public class ChatsResponseService {
                 "ORDER BY b.created_at DESC " +
                 "LIMIT ?";
 
-        return jdbcTemplate.query(sql, new Object[]{userId, userId, lastLoaded, userId, userId, limit},
+        return jdbcTemplate.query(sql, new Object[]{userId, userId, userId, userId, lastLoaded, userId, userId, limit},
                 (rs, rowNum) -> new ChatDTO(
                         rs.getLong("chatId"),
                         rs.getString("content"),

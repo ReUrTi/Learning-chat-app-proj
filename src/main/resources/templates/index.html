@@ -143,10 +143,11 @@
             data.chats.forEach(chat => {
                 renderChat(chat);
             });
+            lastLoadedChatDate = data.lastChatDate;
         }
     }
 
-    async function loadItems() {
+    function loadItems() {
         if (loading || !hasMoreItems) return;
 
         loading = true;
@@ -212,7 +213,7 @@
 
         const chatLastMessageDate = document.createElement('div');
         chatLastMessageDate.className = 'chat-lastMessage-date';
-        if(chat.lastMessageCreatedAt == null) {
+        if(chat.lastMessageDate == null) {
             chatLastMessageDate.innerHTML = `
                 <span> </span>
             `;
