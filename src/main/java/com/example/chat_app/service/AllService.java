@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Objects;
 
@@ -77,11 +78,11 @@ public class AllService {
     }
 
     @Transactional
-    public String showOrCreateChat(Long authUserId, Long userId) {
+    public String showOrCreateChat(Long authUserId, Long userId, Timestamp timestamp) {
         if(Objects.equals(authUserId, userId)) return "You cannot create chat with yourself (for now).";
         PrivateChat privateChat = chatRepository.findOneChat(authUserId, userId);
         if(privateChat == null) {
-            chatRepository.save(new PrivateChat(authUserId, userId));
+            chatRepository.save(new PrivateChat(authUserId, userId, timestamp));
         } else {
             deleteHiddenChat(privateChat.getId(), authUserId);
         }

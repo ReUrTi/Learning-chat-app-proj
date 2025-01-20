@@ -1,7 +1,9 @@
 package com.example.chat_app.model;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+
+import java.sql.Timestamp;
+
 
 @Entity
 @Table(name = "messages")
@@ -21,19 +23,29 @@ public class Message {
     private String content;
 
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private Timestamp createdAt;
 
     @Column(name = "is_read", nullable = false)
-    private boolean isRead = false;
+    private boolean isRead;
 
     public Message() {
 
     }
 
-    public Message(Long chatId, Long userId, String content) {
+    public Message(Long chatId, Long userId, String content, Timestamp createdAt) {
         this.chatId = chatId;
         this.userId = userId;
         this.content = content;
+        this.createdAt = createdAt;
+    }
+
+    public Message(Long id, Long chatId, Long userId, String content, Timestamp createdAt, boolean isRead) {
+        this.id = id;
+        this.chatId = chatId;
+        this.userId = userId;
+        this.content = content;
+        this.createdAt = createdAt;
+        this.isRead = isRead;
     }
 
     public String getContent() {
@@ -56,7 +68,7 @@ public class Message {
         return id;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public Timestamp getCreatedAt() {
         return createdAt;
     }
 

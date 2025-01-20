@@ -29,17 +29,17 @@ public class WebSecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
-                        .loginPage("/login") // Указываем страницу логина
-                        .permitAll() // Разрешаем всем доступ к странице логина
+                        .loginPage("/login")
+                        .permitAll()
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/logout") // URL для выхода
-                        .logoutSuccessUrl("/login?logout") // URL перенаправления после успешного выхода
-                        .invalidateHttpSession(true) // Уничтожение сессии
-                        .deleteCookies("JSESSIONID") // Удаление куки сессии
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
                 )
 //                .csrf(csrf -> csrf
-//                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()) // Использование Cookie для хранения CSRF-токена
+//                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
 //                );
                 .csrf(AbstractHttpConfigurer::disable);
 

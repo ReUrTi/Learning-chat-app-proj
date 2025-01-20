@@ -111,11 +111,12 @@ body {
 }
 
 .chat-div {
-    padding: 10px;
+    padding: 8px;
     cursor: pointer;
     position: relative;
     display: flex;
     flex-direction: column;
+    margin: 3px;
 }
 
 .chat-lastMessage-info {
@@ -223,4 +224,18 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center
+}
+
+.chats-loader {
+    border: 8px solid #f3f3f3; /* Цвет фона */
+    border-top: 8px solid #3498db; /* Цвет верхней части */
+    border-radius: 50%;
+    width: 40px; /* Ширина колеса */
+    height: 40px; /* Высота колеса */
+    animation: spin 1s linear infinite; /* Анимация вращения */
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

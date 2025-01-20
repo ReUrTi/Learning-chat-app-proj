@@ -4,23 +4,18 @@ import java.sql.Timestamp;
 
 public class MessagesRequest {
     private int limit;
-    private Timestamp lastLoadedCreatedAt;
+    private String lastLoaded;
+    private Long chatId;
 
-    public Timestamp getLastLoadedCreatedAt() {
-        return lastLoadedCreatedAt;
-    }
-
-    public void setLastLoadedCreatedAt(Timestamp lastLoadedCreatedAt) {
-        this.lastLoadedCreatedAt = lastLoadedCreatedAt;
+    public String getLastLoaded() {
+        return lastLoaded;
     }
 
     public int getLimit() {
         return limit;
     }
 
-    public void setLimit(int limit) {
-        this.limit = limit;
+    public Long getChatId() {
+        return chatId;
     }
-
-
 }

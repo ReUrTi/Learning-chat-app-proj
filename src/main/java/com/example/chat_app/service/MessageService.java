@@ -13,13 +13,13 @@ import java.util.List;
 @Service
 public class MessageService {
 
-    @Autowired
-    private MessageRepository messageRepository;
-
-    public List<Message> getMessagesByChatId(Long chatId, int page, int limit) {
-        Pageable pageable = PageRequest.of(page, limit);
-        return messageRepository.findByChatId(chatId, pageable);
-    }
+//    @Autowired
+//    private MessageRepository messageRepository;
+//
+//    public List<Message> getMessagesByChatId(Long chatId, int page, int limit) {
+//        Pageable pageable = PageRequest.of(page, limit);
+//        return messageRepository.findByChatId(chatId, pageable);
+//    }
 
 //    public List<Message> getMessagesByChatIdWithCursor(Long chatId, int limit, Timestamp lastLoadedCreatedAt) {
 //        return messageRepository.findByChatIdWithCursor(chatId, lastLoadedCreatedAt, limit);

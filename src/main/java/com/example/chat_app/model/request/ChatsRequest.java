@@ -11,23 +11,11 @@ public class ChatsRequest {
         return lastLoaded;
     }
 
-    public void setLastLoaded(String lastLoaded) {
-        this.lastLoaded = lastLoaded;
-    }
-
     public int getLimit() {
         return limit;
     }
 
-    public void setLimit(int limit) {
-        this.limit = limit;
-    }
-
     public Long getUserId() {
         return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
     }
 }

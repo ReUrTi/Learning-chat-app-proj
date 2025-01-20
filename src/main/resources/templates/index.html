@@ -97,72 +97,81 @@
 
 <!--  Chat list handler  -->
 
-    var stompClient = null;
-    var reconnectInterval = 5000;
-    var pingInterval = 30000;
-    var pingTimeout = 10000;
+    let stompClient = null;
+    let pingInterval = 30000;
+    let pingTimeout = 10000;
     const chatListContainer = document.getElementById('chat-list');
     const authUserId = [[${authUserId}]];
-    const authUserNickname = '[[${nickname}]]';
+    let authUserNickname = '[[${nickname}]]';
+    let requestedChatId = [[${requestedChatId} != null ? ${requestedChatId} : 'null']];
     let lastLoadedChatDate = new Date().toISOString().slice(0, 19).replace("T", " ");
     let lastLoadedMessageDate = new Date().toISOString().slice(0, 19).replace("T", " ");
-    let loading = false;
-    let hasMoreItems = true;
+    let loadingChats = false;
+    let hasMoreChats = true;
+    let chatsBatchLimit = 0;
 
-    function connect() {
-        var socket = new SockJS('/ws');
+    function initWebSocket() {
+        const socket = new SockJS('/ws');
         stompClient = Stomp.over(socket);
 
-        stompClient.connect({}, function (frame) {
-            console.log('Connected: ' + frame);
+        if (sessionStorage.getItem('stompConnected')) {
+            console.log('STOMP is already connected.');
+            return;
+        }
+
+        stompClient.connect({}, function(frame) {
+            console.log('STOMP has been connected:', frame);
+            sessionStorage.setItem('stompConnected', 'true');
+
             startPing();
-            stompClient.subscribe('/topic/convo/getMS', function (message) {});
-            stompClient.subscribe('/topic/chats', handleChatMessages);
-
-            loadItems();
-
-        }, function (error) {
-            console.error('Connection error: ' + error);
-            setTimeout(connect, reconnectInterval);
+            stompClient.subscribe('/user/topic/messages', handleMessages);
+            stompClient.subscribe('/user/topic/chats', handleChats);
+            loadChats(new Date().toISOString().slice(0, 19).replace("T", " "));
+        }, function(error) {
+            console.error('Error STOMP:', error);
         });
 
         socket.onclose = function () {
-            console.error('Connection lost. Reconnecting...');
-            setTimeout(connect, reconnectInterval);
+            console.error('Connection lost. Reload the page.');
         };
     }
 
-    function handleChatMessages(response) {
-        const data = JSON.parse(response.body);
+    async function handleChats(response) {
+        const data = await JSON.parse(response.body);
         console.log("Received response:", data);
 
         if (data.chats.length === 0) {
-            hasMoreItems = false;
+            hasMoreChats = false;
             chatListContainer.removeEventListener('scroll', checkScroll);
         } else {
             data.chats.forEach(chat => {
                 renderChat(chat);
             });
-            lastLoadedChatDate = data.lastChatDate;
+            lastLoadedChatDate = data.lastChatDate.substring(0, 19).replace("T", " ");
         }
     }
 
-    function loadItems() {
-        if (loading || !hasMoreItems) return;
+    async function handleMessages(response){
+        const data = await JSON.parse(response.body);
+        console.log("Received response:", data);
+    }
 
-        loading = true;
+    async function loadChats(lastDate) {
+        if (loadingChats || !hasMoreChats) return;
+
+        loadingChats = true;
         try {
             const request = {
-                limit: 20,
-                lastLoaded: lastLoadedChatDate,
+                limit: 20 + chatsBatchLimit,
+                lastLoaded: lastDate,
                 userId: authUserId
             };
 
-            stompClient.send('/app/chats/get', { 'Content-Type': 'application/json' }, JSON.stringify(request));
+            await stompClient.send('/app/chats/lazy', { 'Content-Type': 'application/json' }, JSON.stringify(request));
         } catch (error) {
             console.error("Ошибка при загрузке данных:", error);
         } finally {
-            loading = false;
+            loadingChats = false;
         }
     }
 
@@ -177,8 +186,8 @@
         chatDiv.className = 'chat-div';
         chatDiv.id = chatElementId;
         chatDiv.addEventListener('click', () => {
-            // Например, открыть новое окно или отобразить содержимое чата
-            // window.open('url_to_chat', '_blank');
+
+            history.pushState(state, '', `?chatId=${chat.chatId}`);
         });
         chatDiv.addEventListener('mouseover', () => {
             chatDiv.style.backgroundColor = '#e0e0e0';
@@ -320,7 +329,7 @@
                 }, pingTimeout);
             }
         }, pingInterval);
-        stompClient.subscribe('/topic/pong', function (message) {
+        stompClient.subscribe('/user/topic/pong', function (message) {
             clearTimeout(pingTimeoutId);
             console.log('Received pong response from server:', message);
         });
@@ -331,14 +340,13 @@
         const threshold = chatListContainer.scrollHeight - 100;
 
         if (scrollPosition >= threshold) {
-            loadItems();
+            loadChats(lastLoadedChatDate);
         }
     }
     chatListContainer.addEventListener('scroll', checkScroll);
 
 <!--  Message-container handler  -->
 
-    var requestedChatId = [[${requestedChatId} != null ? ${requestedChatId} : 'null']];
     const chatContainer = document.getElementById('chat-container');
 
     function showEmpty() {
@@ -456,7 +464,7 @@
 
     window.onload = function() {
         createSearchContainer();
-        connect();
+        initWebSocket();
 
         if(requestedChatId == null){
             showEmpty();
@@ -464,6 +472,15 @@
             showChat();
         }
 
+    };
+    window.onpopstate = function(event) {
+
+    };
+    window.onbeforeunload = function() {
+        if (stompClient) {
+            stompClient.disconnect();
+            sessionStorage.removeItem('stompConnected');
+        }
     };
 </script>
 </body>

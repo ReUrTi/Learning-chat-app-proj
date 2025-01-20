@@ -1,6 +1,8 @@
 package com.example.chat_app.model;
 
 import jakarta.persistence.*;
+
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Entity
@@ -18,7 +20,7 @@ public class BlockedUser {
     private Long blockedId;
 
     @Column(name = "blocked_at", nullable = false)
-    private LocalDateTime blockedAt = LocalDateTime.now();
+    private Timestamp blockedAt;
 
     public BlockedUser(Long blockerId, Long blockedId) {
         this.blockerId = blockerId;
@@ -29,7 +31,7 @@ public class BlockedUser {
         return id;
     }
 
-    public LocalDateTime getBlockedAt() {
+    public Timestamp getBlockedAt() {
         return blockedAt;
     }
 
