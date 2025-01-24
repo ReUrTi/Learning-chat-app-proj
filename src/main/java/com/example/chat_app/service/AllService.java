@@ -37,12 +37,12 @@ public class AllService {
 
     public String register(User user) {
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-            return "Username already exists"; // Сообщение об ошибке
+            return "Username already exists";
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setNickname(user.getUsername());
         userRepository.save(user);
-        return "User  registered successfully";
+        return "User registered successfully";
     }
 
     public User authenticate(String username, String password) {

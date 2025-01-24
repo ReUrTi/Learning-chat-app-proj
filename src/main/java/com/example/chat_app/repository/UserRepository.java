@@ -18,4 +18,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT new com.example.chat_app.model.DTO.UserDTO(u.id, u.nickname) FROM User u WHERE u.username = :username")
     UserDTO getUserDTOByUsername(@Param("username") String username);
+
+    @Query("select u.nickname from User u where u.id = :id")
+    Optional<String> getUserNicknameById(@Param("id") Long id);
 }

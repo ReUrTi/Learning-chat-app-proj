@@ -98,17 +98,22 @@
 <!--  Chat list handler  -->
 
     let stompClient = null;
-    let pingInterval = 30000;
-    let pingTimeout = 10000;
+    const pingInterval = 30000;
+    const pingTimeout = 10000;
     const chatListContainer = document.getElementById('chat-list');
+    const chatContainer = document.getElementById('chat-container');
     const authUserId = [[${authUserId}]];
-    let authUserNickname = '[[${nickname}]]';
-    let requestedChatId = [[${requestedChatId} != null ? ${requestedChatId} : 'null']];
+    const authUserNickname = '[[${nickname}]]';
+    let interlocutorId = [[${interlocutorId} != null ? ${interlocutorId} : 'null']];
+    let interlocutorNickname = '[[${interlocutorNickname} != null ? ${interlocutorNickname} : 'null']]';
+    let chatId = null;
     let lastLoadedChatDate = new Date().toISOString().slice(0, 19).replace("T", " ");
     let lastLoadedMessageDate = new Date().toISOString().slice(0, 19).replace("T", " ");
     let loadingChats = false;
     let hasMoreChats = true;
     let chatsBatchLimit = 0;
+    let messagesBatchLimit = 0;
+    let confirmedChatId = null;
 
     function initWebSocket() {
         const socket = new SockJS('/ws');
@@ -116,6 +121,10 @@
 
         if (sessionStorage.getItem('stompConnected')) {
             console.log('STOMP is already connected.');
+            if(interlocutorId != null){
+                stompClient.subscribe('/user/topic/messages', handleMessages);
+                stompClient.subscribe('/live/messages/${interlocutorId}/${authUserId}', function(){});
+            }
             return;
         }
 
@@ -123,9 +132,14 @@
             console.log('STOMP has been connected:', frame);
             sessionStorage.setItem('stompConnected', 'true');
 
-            startPing();
-            stompClient.subscribe('/user/topic/messages', handleMessages);
             stompClient.subscribe('/user/topic/chats', handleChats);
+            stompClient.subscribe('/live/chats/${authUserId}', function(){});
+            if(interlocutorId != null){
+                stompClient.subscribe('/user/topic/messages', handleMessages);
+                stompClient.subscribe('/live/messages/${interlocutorId}/${authUserId}', function(){});
+                loadMessages();
+            }
+            startPing();
             loadChats(new Date().toISOString().slice(0, 19).replace("T", " "));
         }, function(error) {
             console.error('Error STOMP:', error);
@@ -145,7 +159,7 @@
             chatListContainer.removeEventListener('scroll', checkScroll);
         } else {
             data.chats.forEach(chat => {
-                renderChat(chat);
+                renderChatLazy(chat);
             });
             lastLoadedChatDate = data.lastChatDate.substring(0, 19).replace("T", " ");
         }
@@ -175,8 +189,8 @@
         }
     }
 
-    function renderChat(chat) {
-        const chatElementId = `chatId${chat.chatId}`
+    function renderChatLazy(chat) {
+        const chatElementId = `chatId-${chat.interlocutorId}`
         const chatElement = document.querySelector(`.side#chat-list #${chatElementId}`);
         if (chatElement) {
             return;
@@ -186,8 +200,8 @@
         chatDiv.className = 'chat-div';
         chatDiv.id = chatElementId;
         chatDiv.addEventListener('click', () => {
-
-            history.pushState(state, '', `?chatId=${chat.chatId}`);
+            window.location.href = `?interlocutorId=${chat.interlocutorId}`;
+<!--            history.pushState(state, '', `?interlocutorId=${chat.interlocutorId}`);-->
         });
         chatDiv.addEventListener('mouseover', () => {
             chatDiv.style.backgroundColor = '#e0e0e0';
@@ -206,30 +220,22 @@
 
         const chatLastMessageText = document.createElement('div');
         chatLastMessageText.className = 'chat-lastMessage-text';
+        chatLastMessageText.id = `chat-lastMessageText-${chat.interlocutorId}`;
         if(chat.lastMessage == null) {
-            chatLastMessageText.innerHTML = `
-                <span> </span>
-            `;
+            chatLastMessageText.innerHTML = '&nbsp;'
         } else if(chat.lastMessageUserId === Number(authUserId)) {
-            chatLastMessageText.innerHTML = `
-                <span>You: ${chat.lastMessage}</span>
-            `;
+            chatLastMessageText.textContent = `You: ${chat.lastMessage}`;
         } else {
-            chatLastMessageText.innerHTML = `
-                <span>${chat.lastMessage}</span>
-            `;
+            chatLastMessageText.textContent = `${chat.lastMessage}`;
         }
 
         const chatLastMessageDate = document.createElement('div');
         chatLastMessageDate.className = 'chat-lastMessage-date';
+        chatLastMessageDate.id = `chat-lastMessageDate-${chat.interlocutorId}`;
         if(chat.lastMessageDate == null) {
-            chatLastMessageDate.innerHTML = `
-                <span> </span>
-            `;
+            chatLastMessageDate.innerHTML = '&nbsp;'
         } else {
-            chatLastMessageDate.innerHTML = `
-                <span>${chat.lastMessageDate}</span>
-            `;
+            chatLastMessageDate.textContent = `${chat.lastMessageDate}`;
         }
 
         const chatInfo = document.createElement('div');
@@ -336,18 +342,22 @@
     }
 
     function checkScroll() {
-        const scrollPosition = chatListContainer.scrollTop + chatListContainer.clientHeight;
-        const threshold = chatListContainer.scrollHeight - 100;
+        if (stompClient && stompClient.connected){
+            const scrollPosition = chatListContainer.scrollTop + chatListContainer.clientHeight;
+            const threshold = chatListContainer.scrollHeight - 100;
 
-        if (scrollPosition >= threshold) {
-            loadChats(lastLoadedChatDate);
+            if (scrollPosition >= threshold) {
+                loadChats(lastLoadedChatDate);
+            }
         }
     }
     chatListContainer.addEventListener('scroll', checkScroll);
 
 <!--  Message-container handler  -->
 
-    const chatContainer = document.getElementById('chat-container');
+    function loadMessages() {
+
+    }
 
     function showEmpty() {
         const chatContainer = document.getElementById('chat-container');
@@ -364,7 +374,6 @@
 
         const activeChat = document.createElement('div');
         activeChat.className = 'active-chat';
-        activeChat.id = `active-chat-${requestedChatId}`;
 
         upInterface = document.createElement('div');
         upInterface.className = 'up-interface';
@@ -380,7 +389,7 @@
 
         chatInfoDiv = document.createElement('div');
         chatInfoDiv.className = 'chat-info-div';
-        chatInfoDiv.innerHTML = `Testing. ChatId: ${requestedChatId}`;
+        chatInfoDiv.textContent = `${interlocutorNickname}`;
 
         optionsDiv = document.createElement('div');
         optionsDiv.className = 'options-div';
@@ -412,7 +421,7 @@
         sendButton.addEventListener('click', () => {
             const messageText = messageInput.value.trim();
             if (messageText) {
-                addMessageToChat(messageText);
+                handleOwnMessage(messageText);
                 messageInput.value = '';
                 messageInput.focus();
             }
@@ -423,28 +432,6 @@
                 sendButton.click();
             }
         });
-        function addMessageToChat(text) {
-            const messageElement = document.createElement('div');
-            const messageInfo = document.createElement('div');
-            messageInfo.className = 'message-info';
-            const messageText = document.createElement('div');
-            const messageUser = document.createElement('div');
-            const messageStatus = document.createElement('div');
-            const messageTime = document.createElement('div');
-
-            messageElement.classList.add('message');
-            messageText.textContent = text;
-            messageTime.textContent = new Date().toLocaleTimeString();
-            messageUser.textContent = `${authUserNickname}`;
-            messageElement.appendChild(messageInfo);
-            messageInfo.appendChild(messageUser);
-            messageInfo.appendChild(messageStatus);
-            messageInfo.appendChild(messageTime);
-            messageElement.appendChild(messageText);
-
-            messagesContainer.prepend(messageElement);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
 
         upInterface.appendChild(closeButtonDiv);
         closeButtonDiv.appendChild(closeChatButton);
@@ -462,20 +449,81 @@
         chatContainer.appendChild(activeChat);
     }
 
+    function handleOwnMessage(text){
+        const now = new Date();
+        const ownMessageTime = now.toISOString();
+        const ownMessage = createOwnMessage(text, ownMessageTime);
+
+        messagesContainer.prepend(ownMessage);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+        const chatElement = document.getElementById(`chatId-${interlocutorId}`);
+        if(chatElement){
+            chatListContainer.prepend(chatElement);
+            updateChatLastMessageInfo(text, ownMessageTime, true);
+
+        } else {
+
+        }
+    }
+
+    function updateChatLastMessageInfo(text, date, ownMessage){
+        const lastText = document.getElementById(`chat-lastMessageText-${interlocutorId}`);
+        const lastDate = document.getElementById(`chat-lastMessageDate-${interlocutorId}`);
+
+        if(text == null) {
+            lastText.innerHTML = '&nbsp;'
+        } else if(ownMessage) {
+            lastText.textContent = `You: ${text}`;
+        } else {
+            lastText.textContent = text;
+        }
+
+        if(date == null) {
+            lastDate.innerHTML = '&nbsp;'
+        } else {
+            lastDate.textContent = date;
+        }
+    }
+
+    function createOwnMessage(text, ownMessageTime) {
+        const messageElement = document.createElement('div');
+        const messageInfo = document.createElement('div');
+        messageInfo.className = 'message-info';
+        const messageText = document.createElement('div');
+        const messageUser = document.createElement('div');
+        const messageStatus = document.createElement('div');
+        const messageTime = document.createElement('div');
+
+        messageElement.classList.add('message');
+        messageText.textContent = text;
+        messageTime.textContent = new Date().toLocaleTimeString();
+        messageUser.textContent = `${authUserNickname}`;
+        messageStatus.textContent = '!';
+        messageTime.textContent = ownMessageTime;
+        messageElement.appendChild(messageInfo);
+        messageInfo.appendChild(messageUser);
+        messageInfo.appendChild(messageStatus);
+        messageInfo.appendChild(messageTime);
+        messageElement.appendChild(messageText);
+
+        return messageElement;
+    }
+
     window.onload = function() {
         createSearchContainer();
         initWebSocket();
 
-        if(requestedChatId == null){
+        if(interlocutorId == null){
             showEmpty();
         } else {
             showChat();
         }
 
     };
-    window.onpopstate = function(event) {
-
-    };
+<!--    window.onpopstate = function(event) {-->
+<!--        -->
+<!--    };-->
     window.onbeforeunload = function() {
         if (stompClient) {
             stompClient.disconnect();

@@ -2,6 +2,7 @@ package com.example.chat_app.model;
 
 import jakarta.persistence.*;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -24,7 +25,8 @@ public class User {
     private String password;
 
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private Timestamp createdAt;
+//    new Timestamp(System.currentTimeMillis())
 
     @Column(name = "is_active", nullable = false)
     private boolean isActive = true;
@@ -44,7 +46,6 @@ public class User {
 //    @OneToMany(mappedBy = "blocked", cascade = CascadeType.ALL)
 //    private List<BlockedUser> blockers;
 
-    // Конструкторы, геттеры и сеттеры
     public User() {}
 
     public User(String username, String password) {
@@ -55,10 +56,6 @@ public class User {
     public Long getId() {
         return id;
     }
-
-//    public void setId(Long id) {
-//        this.id = id;
-//    }
 
     public String getUsername() {
         return username;
@@ -92,7 +89,7 @@ public class User {
         isActive = active;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public Timestamp getCreatedAt() {
         return createdAt;
     }
 }
