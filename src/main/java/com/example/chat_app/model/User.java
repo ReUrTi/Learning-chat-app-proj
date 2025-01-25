@@ -26,7 +26,6 @@ public class User {
 
     @Column(name = "created_at", nullable = false)
     private Timestamp createdAt;
-//    new Timestamp(System.currentTimeMillis())
 
     @Column(name = "is_active", nullable = false)
     private boolean isActive = true;

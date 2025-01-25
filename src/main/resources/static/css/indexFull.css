@@ -203,6 +203,15 @@ body {
     display: flex;
     flex-direction: column-reverse;
     padding-bottom: 30px;
+    padding-top: 10px;
+}
+
+.outer-message-container{
+    flex-grow: 1;
+    background-color: black;
+    overflow-y: auto;
+    display: flex;
+    padding: 5px;
 }
 
 .input-container {

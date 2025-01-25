@@ -97,16 +97,17 @@
 
 <!--  Chat list handler  -->
 
-    let stompClient = null;
     const pingInterval = 30000;
     const pingTimeout = 10000;
     const chatListContainer = document.getElementById('chat-list');
     const chatContainer = document.getElementById('chat-container');
     const authUserId = [[${authUserId}]];
     const authUserNickname = '[[${nickname}]]';
-    let interlocutorId = [[${interlocutorId} != null ? ${interlocutorId} : 'null']];
-    let interlocutorNickname = '[[${interlocutorNickname} != null ? ${interlocutorNickname} : 'null']]';
-    let chatId = null;
+    const interlocutorId = [[${interlocutorId} != null ? ${interlocutorId} : 'null']];
+    const interlocutorNickname = '[[${interlocutorNickname} != null ? ${interlocutorNickname} : 'null']]';
+    let blockedByThem = [[${blockedByThem} != null ? ${blockedByThem} : 'null']];
+    let blockedThem = [[${blockedThem} != null ? ${blockedThem} : 'null']];
+    let chatId = [[${chatId} != null ? ${chatId} : 'null']];
     let lastLoadedChatDate = new Date().toISOString().slice(0, 19).replace("T", " ");
     let lastLoadedMessageDate = new Date().toISOString().slice(0, 19).replace("T", " ");
     let loadingChats = false;
@@ -115,13 +116,15 @@
     let messagesBatchLimit = 0;
     let confirmedChatId = null;
 
+    let stompClient = null;
+
     function initWebSocket() {
         const socket = new SockJS('/ws');
         stompClient = Stomp.over(socket);
 
         if (sessionStorage.getItem('stompConnected')) {
             console.log('STOMP is already connected.');
-            if(interlocutorId != null){
+            if(interlocutorNickname != null){
                 stompClient.subscribe('/user/topic/messages', handleMessages);
                 stompClient.subscribe('/live/messages/${interlocutorId}/${authUserId}', function(){});
             }
@@ -134,7 +137,7 @@
 
             stompClient.subscribe('/user/topic/chats', handleChats);
             stompClient.subscribe('/live/chats/${authUserId}', function(){});
-            if(interlocutorId != null){
+            if(interlocutorNickname != null){
                 stompClient.subscribe('/user/topic/messages', handleMessages);
                 stompClient.subscribe('/live/messages/${interlocutorId}/${authUserId}', function(){});
                 loadMessages();
@@ -404,7 +407,8 @@
         messagesContainer.className = 'message-container';
         messagesContainer.id = 'message-container-id';
 
-        innerMessagesContainer = document.createElement('div');
+        outerMessagesContainer = document.createElement('div');
+        outerMessagesContainer.className = 'outer-message-container';
 
         inputInterface = document.createElement('div');
         inputInterface.className = 'input-container';
@@ -439,11 +443,10 @@
         upInterface.appendChild(optionsDiv);
         optionsDiv.appendChild(optionsChatButton);
 
-        messagesContainer.appendChild(innerMessagesContainer);
-        messagesContainer.className = 'message-container';
+        outerMessagesContainer.appendChild(messagesContainer);
 
         activeChat.appendChild(upInterface);
-        activeChat.appendChild(messagesContainer);
+        activeChat.appendChild(outerMessagesContainer);
         activeChat.appendChild(inputInterface);
 
         chatContainer.appendChild(activeChat);
@@ -510,12 +513,18 @@
         return messageElement;
     }
 
+    function showUnavailable() {
+
+    }
+
     window.onload = function() {
         createSearchContainer();
         initWebSocket();
 
-        if(interlocutorId == null){
+        if(interlocutorId === null){
             showEmpty();
+<!--        } else if (interlocutorNickname === null){-->
+<!--            showUnavailable();-->
         } else {
             showChat();
         }
