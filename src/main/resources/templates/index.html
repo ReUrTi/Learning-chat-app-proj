@@ -97,8 +97,6 @@
 
 <!--  Chat list handler  -->
 
-    const pingInterval = 30000;
-    const pingTimeout = 10000;
     const chatListContainer = document.getElementById('chat-list');
     const chatContainer = document.getElementById('chat-container');
     const authUserId = [[${authUserId}]];
@@ -134,6 +132,13 @@
         stompClient.connect({}, function(frame) {
             console.log('STOMP has been connected:', frame);
             sessionStorage.setItem('stompConnected', 'true');
+            stompClient.send("/app/connect", {}, '');
+            stompClient.subscribe('/topic/activity', (message) => {
+                console.log('Heartbeat response:', message.body);
+            });
+            setInterval(() => {
+                stompClient.send("/app/heartbeat", {}, '');
+            }, 10000);
 
             stompClient.subscribe('/user/topic/chats', handleChats);
             stompClient.subscribe('/live/chats/${authUserId}', function(){});
@@ -142,7 +147,6 @@
                 stompClient.subscribe('/live/messages/${interlocutorId}/${authUserId}', function(){});
                 loadMessages();
             }
-            startPing();
             loadChats(new Date().toISOString().slice(0, 19).replace("T", " "));
         }, function(error) {
             console.error('Error STOMP:', error);
@@ -325,23 +329,6 @@
     function hideChat() {
     }
     function blockChat() {
-    }
-
-    var pingTimeoutId;
-    function startPing() {
-        pingIntervalId = setInterval(function () {
-            if (stompClient && stompClient.connected) {
-                stompClient.send('/app/ping', {}, JSON.stringify({}));
-                pingTimeoutId = setTimeout(function () {
-                    console.warn('Ping timeout, reconnecting...');
-                    stompClient.disconnect();
-                }, pingTimeout);
-            }
-        }, pingInterval);
-        stompClient.subscribe('/user/topic/pong', function (message) {
-            clearTimeout(pingTimeoutId);
-            console.log('Received pong response from server:', message);
-        });
     }
 
     function checkScroll() {
