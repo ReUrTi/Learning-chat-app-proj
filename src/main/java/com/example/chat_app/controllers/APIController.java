@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 
@@ -43,7 +44,7 @@ public class APIController {
     }
 
     @PostMapping("/api/create/chat")
-    public String createChat(@RequestParam Long userId, @RequestParam Timestamp timestamp, HttpSession session) {
+    public String createChat(@RequestParam Long userId, @RequestParam Instant timestamp, HttpSession session) {
         Long authUserId = (Long) session.getAttribute("userId");
         if(authUserId == null) return "User is not authenticated.";
 

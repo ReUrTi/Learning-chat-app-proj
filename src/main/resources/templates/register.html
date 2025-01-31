@@ -1,20 +1,20 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registration</title>
     <style>
         .error {
-            color: black;
             background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
-            padding: 10px;
-            margin-bottom: 15px;
+            display: none;
         }
         .success {
-            color: black;
             background-color: #d4edda;
+            display: none;
+        }
+        .response{
+            color: black;
             border: 1px solid #f5c6cb;
             padding: 10px;
             margin-bottom: 15px;
@@ -23,28 +23,94 @@
 </head>
 <body>
 <h1>Register</h1>
-<form action="#" th:action="@{/register}" method="post">
-    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
-
+<form method="post" id="registrationForm">
     <label for="username">Username</label>
-    <input type="text" id="username" name="username" placeholder="Username" required>
+    <input type="text" id="username" name="username" placeholder="Username" required autofocus>
 
     <label for="password">Password</label>
     <input type="password" id="password" name="password" placeholder="Password" required>
 
-    <button type="submit">Register</button>
+    <button id="submitButton" type="submit">Register</button>
 </form>
-
-<!-- Отображение сообщения об ошибке -->
-<div th:if="${errorMessage}" class="error">
-    <p th:text="${errorMessage}"></p>
-</div>
-
-<!-- Отображение сообщения об успешной регистрации -->
-<div th:if="${successMessage}" class="success">
-    <p th:text="${successMessage}"></p>
-</div>
-
 <a href="/login">Already have an account? Sign in here</a>
+<div id="error" class="response error"></div>
+<div id="success" class="response success"></div>
+<script>
+    const error = document.getElementById('error');
+    const success = document.getElementById('success');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const submitButton = document.getElementById('submitButton');
+
+    const usernamePattern = /^[a-zA-Z0-9-_]{4,30}$/;
+    const passwordPattern = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z0-9-_]{6,64}$/;
+
+    document.getElementById('registrationForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
+        try {
+            usernameInput.disabled = true;
+            passwordInput.disabled = true;
+            submitButton.textContent = 'Loading...';
+            submitButton.disabled = true;
+            let username = usernameInput.value.trim();
+            let password = passwordInput.value.trim();
+
+            if (!username || !password) {
+                showMessage(false, 'Username and password cannot be empty or contain only spaces.');
+                return;
+            }
+            const validation = validationCheck(username, password);
+            if(!validation) return;
+            const request = {
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value,
+                timestamp: new Date().toISOString()
+            };
+            const response = await fetch('/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(request)
+            });
+            const result = await response.text();
+            if(response.ok){
+                showMessage(true, result);
+            } else {
+                showMessage(false, result);
+            }
+        } catch {
+            showMessage(false, 'Unknown registration error.');
+        } finally {
+            document.getElementById('registrationForm').reset();
+            usernameInput.disabled = false;
+            passwordInput.disabled = false;
+            submitButton.disabled = false;
+            submitButton.textContent = 'Register';
+        }
+    });
+    function validationCheck(username, password) {
+        if (!usernamePattern.test(username)) {
+            showMessage(false, 'Username must be 4-30 characters long and contain only letters, numbers, \'-\', and \'_\'.');
+            return false;
+        }
+        if (!passwordPattern.test(password)) {
+            showMessage(false, 'Password must be 6-64 characters long, contain at least one letter and one number, and cannot contain spaces.');
+            return false;
+        }
+        return true;
+    }
+    function showMessage(type, message) {
+        if (!type) {
+            error.style.display = 'block';
+            success.style.display = 'none';
+            error.textContent = message;
+        } else {
+            error.style.display = 'none';
+            success.style.display = 'block';
+            success.textContent = message;
+        }
+    }
+</script>
 </body>
 </html>

@@ -177,16 +177,14 @@
         img.style.height = "16px";
 
         form.onsubmit = function(event) {
-            event.preventDefault(); // Предотвращаем стандартную отправку формы
+            event.preventDefault();
 
-            // Получаем обрезанное значение ввода
             const trimmedInput = input.value.trim();
 
-            // Проверка на пустой ввод, наличие пробелов и недопустимых символов
-            const validInputPattern = /^[a-zA-Z0-9-_]+$/; // Регулярное выражение для проверки
+            const validInputPattern = /^[a-zA-Z0-9-_]+$/;
 
             if (trimmedInput === "") {
-                alert("Пожалуйста, введите значение в поле поиска.");
+                alert("Empty search input.");
                 return;
             }
 
@@ -196,14 +194,14 @@
             }
 
             if (trimmedInput.length > 30) {
-                alert("Please enter no more then 30 characters.");
+                alert("Please enter no more than 30 characters.");
                 return;
             }
 
-<!--            if (trimmedInput.length < 4) {-->
-<!--                alert("Please enter more then 3 characters.");-->
-<!--                return;-->
-<!--            }-->
+            if (trimmedInput.length < 4) {
+                alert("Please enter more than 3 characters.");
+                return;
+            }
 
             input.value = trimmedInput;
             form.submit();

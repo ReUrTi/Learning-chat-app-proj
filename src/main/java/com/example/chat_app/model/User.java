@@ -3,6 +3,7 @@ package com.example.chat_app.model;
 import jakarta.persistence.*;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -25,7 +26,7 @@ public class User {
     private String password;
 
     @Column(name = "created_at", nullable = false)
-    private Timestamp createdAt;
+    private Instant createdAt;
 
     @Column(name = "is_active", nullable = false)
     private boolean isActive = true;
@@ -47,9 +48,10 @@ public class User {
 
     public User() {}
 
-    public User(String username, String password) {
+    public User(String username, String password, Instant createdAt) {
         this.username = username;
         this.password = password;
+        this.createdAt = createdAt;
     }
 
     public Long getId() {
@@ -88,7 +90,7 @@ public class User {
         isActive = active;
     }
 
-    public Timestamp getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 }

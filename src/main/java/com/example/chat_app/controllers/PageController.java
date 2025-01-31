@@ -5,16 +5,18 @@ import com.example.chat_app.security.CustomUserDetails;
 import com.example.chat_app.service.AllService;
 import com.example.chat_app.service.BlockedUserService;
 import com.example.chat_app.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.Optional;
+import java.security.Principal;
 
 @Controller
-public class MainController {
+public class PageController {
 
     @Autowired
     private AllService allService;
@@ -24,6 +26,21 @@ public class MainController {
 
     @Autowired
     private BlockedUserService blockedUserService;
+
+    @GetMapping("/register")
+    public String showRegistrationForm(Principal principal) {
+        if (principal != null)
+            return "index";
+        return "register";
+    }
+
+    @GetMapping("/login")
+    public String showLoginForm(Principal principal) {
+        if (principal != null) {
+            return "index";
+        }
+        return "login";
+    }
 
     @GetMapping("/index")
     public String index(@RequestParam(required = false) String interlocutorId, Model model, @AuthenticationPrincipal CustomUserDetails principal) {
@@ -66,5 +83,11 @@ public class MainController {
     @GetMapping("/")
     public String empty() {
         return "redirect:/index";
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/login";
     }
 }

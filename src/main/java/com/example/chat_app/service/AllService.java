@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 
@@ -35,22 +36,19 @@ public class AllService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public String register(User user) {
+    public Boolean register(User user) {
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-            return "Username already exists";
+            return false;
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setNickname(user.getUsername());
         userRepository.save(user);
-        return "User registered successfully";
+        return true;
     }
 
-    public User authenticate(String username, String password) {
+    public boolean authenticate(String username, String password) {
         User user = userRepository.findByUsername(username).orElse(null);
-        if (user != null && passwordEncoder.matches(password, user.getPassword())) {
-            return user;
-        }
-        return null;
+        return user != null && passwordEncoder.matches(password, user.getPassword());
     }
 
     public String blockUser(Long blocker_id, Long blocked_id) {
@@ -78,7 +76,7 @@ public class AllService {
     }
 
     @Transactional
-    public String showOrCreateChat(Long authUserId, Long userId, Timestamp timestamp) {
+    public String showOrCreateChat(Long authUserId, Long userId, Instant timestamp) {
         if(Objects.equals(authUserId, userId)) return "You cannot create chat with yourself (for now).";
         PrivateChat privateChat = chatRepository.findOneChat(authUserId, userId);
         if(privateChat == null) {

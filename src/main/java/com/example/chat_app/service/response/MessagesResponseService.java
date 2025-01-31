@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -19,8 +20,7 @@ public class MessagesResponseService {
 
     public MessagesResponse getMessages(MessagesRequest request){
         try {
-            Timestamp lastLoadedTimestamp = Timestamp.valueOf(request.getLastLoaded());
-            List<Message> messageList = messages(request.getChatId(), lastLoadedTimestamp, request.getLimit());
+            List<Message> messageList = messages(request.getChatId(), request.getLastLoaded(), request.getLimit());
             Timestamp timestamp = null;
             if(!messageList.isEmpty()) timestamp = messageList.getLast().getCreatedAt();
             return new MessagesResponse(messageList, null, timestamp);
@@ -29,7 +29,7 @@ public class MessagesResponseService {
         }
     }
 
-    private List<Message> messages(Long chatId, Timestamp timestamp, int limit){
+    private List<Message> messages(Long chatId, Instant timestamp, int limit){
         String sql = "select * from messages m where m.chat_Id = ? and m.created_at < ? order by m.created_at desc limit ?";
         return jdbcTemplate.query(sql, new Object[]{chatId, timestamp, limit},
                 (rs, rowNum) -> new Message(

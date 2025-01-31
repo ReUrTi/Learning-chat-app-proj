@@ -20,15 +20,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class SocketController {
 
     @Autowired
-    ChatsResponseService chatsResponseService;
+    private ChatsResponseService chatsResponseService;
     @Autowired
-    MessagesResponseService messagesResponseService;
+    private MessagesResponseService messagesResponseService;
     @Autowired
-    SimpMessagingTemplate messagingTemplate;
+    private SimpMessagingTemplate messagingTemplate;
     @Autowired
-    UserActivityService userActivityService;
+    private UserActivityService userActivityService;
     @Autowired
-    HeartbeatService heartbeatService;
+    private HeartbeatService heartbeatService;
 
     @MessageMapping("/connect")
     public void setOnline(@AuthenticationPrincipal CustomUserDetails principal) {

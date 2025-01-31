@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -19,12 +20,11 @@ public class ChatsResponseService {
 
     public ChatsResponse getChats(ChatsRequest request){
         try{
-            Timestamp lastLoadedTimestamp = Timestamp.valueOf(request.getLastLoaded());
-            List<ChatDTO> chats = getChatsByUserIdWithCursor(request.getUserId(), lastLoadedTimestamp, request.getLimit());
+//            Timestamp lastLoadedTimestamp = Timestamp.valueOf(request.getLastLoaded());
+            List<ChatDTO> chats = getChatsByUserIdWithCursor(request.getUserId(), request.getLastLoaded(), request.getLimit());
             Timestamp timestamp = null;
             if(chats != null && !chats.isEmpty()) timestamp = chats.getLast().getLastMessageDate();
-            ChatsResponse chatsResponse = new ChatsResponse(chats, null, timestamp);
-            return chatsResponse;
+            return new ChatsResponse(chats, null, timestamp);
         }
         catch (IllegalArgumentException illegalEx) {
             return new ChatsResponse(null, "Bad parrametrs: " + illegalEx.getMessage(), null);
@@ -33,7 +33,7 @@ public class ChatsResponseService {
         }
     }
 
-    public List<ChatDTO> getChatsByUserIdWithCursor(Long userId, Timestamp lastLoaded, int limit) {
+    public List<ChatDTO> getChatsByUserIdWithCursor(Long userId, Instant lastLoaded, int limit) {
         String sql = "SELECT a.id AS chatId, b.content, b.user_id as lastMessageUserId, " +
                 "CASE WHEN b.user_id = ? THEN 0 " +
                 "ELSE (SELECT COUNT(*) FROM messages c WHERE c.chat_id = a.id AND c.is_read = false AND c.user_id != ?) END AS unreadCount, " +

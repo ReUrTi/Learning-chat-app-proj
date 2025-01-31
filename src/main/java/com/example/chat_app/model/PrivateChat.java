@@ -3,6 +3,7 @@ package com.example.chat_app.model;
 import jakarta.persistence.*;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Entity
@@ -20,7 +21,7 @@ public class PrivateChat {
     private Long user2Id;
 
     @Column(name = "created_at", nullable = false)
-    private Timestamp createdAt;
+    private Instant createdAt;
 
     @Column(name = "last_message_id", nullable = false)
     private Long lastMessageId;
@@ -29,13 +30,13 @@ public class PrivateChat {
 
     }
 
-    public PrivateChat(Long user1Id, Long user2Id, Timestamp createdAt) {
+    public PrivateChat(Long user1Id, Long user2Id, Instant createdAt) {
         this.user1Id = user1Id;
         this.user2Id = user2Id;
         this.createdAt = createdAt;
     }
 
-    public Timestamp getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 

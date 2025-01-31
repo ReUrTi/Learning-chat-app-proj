@@ -1,13 +1,14 @@
 package com.example.chat_app.model.request;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 
 public class MessagesRequest {
     private int limit;
-    private String lastLoaded;
+    private Instant lastLoaded;
     private Long chatId;
 
-    public String getLastLoaded() {
+    public Instant getLastLoaded() {
         return lastLoaded;
     }
 

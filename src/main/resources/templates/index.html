@@ -106,8 +106,8 @@
     let blockedByThem = [[${blockedByThem} != null ? ${blockedByThem} : 'null']];
     let blockedThem = [[${blockedThem} != null ? ${blockedThem} : 'null']];
     let chatId = [[${chatId} != null ? ${chatId} : 'null']];
-    let lastLoadedChatDate = new Date().toISOString().slice(0, 19).replace("T", " ");
-    let lastLoadedMessageDate = new Date().toISOString().slice(0, 19).replace("T", " ");
+    let lastLoadedChatDate = new Date().toISOString();
+    let lastLoadedMessageDate = new Date().toISOString();
     let loadingChats = false;
     let hasMoreChats = true;
     let chatsBatchLimit = 0;
@@ -147,7 +147,7 @@
                 stompClient.subscribe('/live/messages/${interlocutorId}/${authUserId}', function(){});
                 loadMessages();
             }
-            loadChats(new Date().toISOString().slice(0, 19).replace("T", " "));
+            loadChats(new Date().toISOString());
         }, function(error) {
             console.error('Error STOMP:', error);
         });
