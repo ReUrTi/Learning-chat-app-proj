@@ -4,24 +4,25 @@ import com.example.chat_app.model.Message;
 import org.springframework.data.domain.Page;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 
 public class MessagesResponse {
     private List<Message> messages;
     private String errorMessage;
-    private Timestamp lastMessageDate;
+    private Instant lastMessageDate;
 
-    public MessagesResponse(List<Message> messages, String errorMessage, Timestamp lastMessageDate) {
+    public MessagesResponse(List<Message> messages, String errorMessage, Instant lastMessageDate) {
         this.messages = messages;
         this.errorMessage = errorMessage;
         this.lastMessageDate = lastMessageDate;
     }
 
-    public Timestamp getLastMessageDate() {
+    public Instant getLastMessageDate() {
         return lastMessageDate;
     }
 
-    public void setLastMessageDate(Timestamp lastMessageDate) {
+    public void setLastMessageDate(Instant lastMessageDate) {
         this.lastMessageDate = lastMessageDate;
     }
 

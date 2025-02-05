@@ -21,7 +21,7 @@ public class MessagesResponseService {
     public MessagesResponse getMessages(MessagesRequest request){
         try {
             List<Message> messageList = messages(request.getChatId(), request.getLastLoaded(), request.getLimit());
-            Timestamp timestamp = null;
+            Instant timestamp = null;
             if(!messageList.isEmpty()) timestamp = messageList.getLast().getCreatedAt();
             return new MessagesResponse(messageList, null, timestamp);
         } catch (Exception e) {
@@ -37,7 +37,7 @@ public class MessagesResponseService {
                         rs.getLong("chat_id"),
                         rs.getLong("user_id"),
                         rs.getString("content"),
-                        rs.getTimestamp("created_at"),
+                        rs.getTimestamp("created_at").toInstant(),
                         rs.getBoolean("is_read")
                 ));
     }

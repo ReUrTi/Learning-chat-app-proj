@@ -1,18 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <style>
+        .response-error{
+            background-color: #f8d7da;
+            display: none;
+            color: black;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+    </style>
 </head>
 <body>
 <h1>Login</h1>
-<form method="post" id ="authentication">
-    <input type="text" name="username" placeholder="Username" required />
-    <input type="password" name="password" placeholder="Password" required />
-    <button type="submit">Login</button>
+<form method="post" id ="authenticationForm">
+    <input id="username" type="text" name="username" placeholder="Username" required />
+    <input id="password" type="password" name="password" placeholder="Password" required />
+    <button id="submitButton" type="submit">Login</button>
 </form>
 <a href="/register">Don't have an account? Register here</a>
+<div id="error" class="response-error"></div>
 <script>
+    const error = document.getElementById('error');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const submitButton = document.getElementById('submitButton');
 
+    const usernamePattern = /^[a-zA-Z0-9-_]{4,30}$/;
+    const passwordPattern = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z0-9-_]{6,64}$/;
+
+    document.getElementById('authenticationForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
+        try {
+            usernameInput.disabled = true;
+            passwordInput.disabled = true;
+            submitButton.textContent = 'Loading...';
+            submitButton.disabled = true;
+
+            let username = usernameInput.value.trim();
+            let password = passwordInput.value.trim();
+
+            if (!username || !password) {
+                error.style.display = 'block';
+                error.textContent = 'Username and password cannot be empty or contain only spaces.';
+                return;
+            }
+
+            const validation = validationCheck(username, password);
+            if (!validation) return;
+
+            const request = { username, password };
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(request)
+            });
+            const result = await response.text();
+            if (response.ok) {
+                window.location.href = 'http://localhost:8080/index';
+            } else if (response.status === 400) {
+                error.style.display = 'block';
+                error.textContent = 'Wrong username or password.';
+            } else {
+                error.style.display = 'block';
+                error.textContent = result;
+            }
+        } catch (err) {
+            console.error('Error:', err);
+            error.style.display = 'block';
+            error.textContent = 'Network error. Please check your internet connection.';
+        } finally {
+            usernameInput.disabled = false;
+            passwordInput.disabled = false;
+            submitButton.disabled = false;
+            submitButton.textContent = 'Login';
+        }
+    });
+    function validationCheck(username, password) {
+        if (!usernamePattern.test(username) || !passwordPattern.test(password)) {
+            error.style.display = 'block';
+            error.textContent = 'Wrong username or password.';
+            return false;
+        }
+        return true;
+    }
 </script>
 </body>
 </html>

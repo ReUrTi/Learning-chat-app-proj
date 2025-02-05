@@ -20,9 +20,8 @@ public class ChatsResponseService {
 
     public ChatsResponse getChats(ChatsRequest request){
         try{
-//            Timestamp lastLoadedTimestamp = Timestamp.valueOf(request.getLastLoaded());
             List<ChatDTO> chats = getChatsByUserIdWithCursor(request.getUserId(), request.getLastLoaded(), request.getLimit());
-            Timestamp timestamp = null;
+            Instant timestamp = null;
             if(chats != null && !chats.isEmpty()) timestamp = chats.getLast().getLastMessageDate();
             return new ChatsResponse(chats, null, timestamp);
         }
@@ -55,7 +54,7 @@ public class ChatsResponseService {
                         rs.getInt("unreadCount"),
                         rs.getLong("otherUserId"),
                         rs.getString("nickname"),
-                        rs.getTimestamp("created_at"),
+                        rs.getTimestamp("created_at").toInstant(),
                         rs.getLong("lastMessageId"),
                         rs.getBoolean("isRead")
                 ));

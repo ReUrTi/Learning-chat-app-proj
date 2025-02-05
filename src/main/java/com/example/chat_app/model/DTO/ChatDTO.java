@@ -1,6 +1,7 @@
 package com.example.chat_app.model.DTO;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 
 public class ChatDTO {
     private Long chatId;
@@ -9,13 +10,13 @@ public class ChatDTO {
     private int unreadCount;
     private Long interlocutorId;
     private String interlocutorNickname;
-    private Timestamp lastMessageDate;
+    private Instant lastMessageDate;
     private Long lastMessageId;
     private boolean lastMessageIsRead;
 
     public ChatDTO(Long chatId, String lastMessage, Long lastMessageUserId,
                    int unreadCount, Long interlocutorId, String interlocutorNickname,
-                   Timestamp lastMessageDate, Long lastMessageId, boolean lastMessageIsRead){
+                   Instant lastMessageDate, Long lastMessageId, boolean lastMessageIsRead){
         this.chatId = chatId;
         this.lastMessage = lastMessage;
         this.lastMessageUserId = lastMessageUserId;
@@ -75,7 +76,7 @@ public class ChatDTO {
         this.interlocutorNickname = interlocutorNickname;
     }
 
-    public Timestamp getLastMessageDate() {
+    public Instant getLastMessageDate() {
         return lastMessageDate;
     }
 

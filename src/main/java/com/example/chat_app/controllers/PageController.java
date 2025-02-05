@@ -5,6 +5,7 @@ import com.example.chat_app.security.CustomUserDetails;
 import com.example.chat_app.service.AllService;
 import com.example.chat_app.service.BlockedUserService;
 import com.example.chat_app.service.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -86,8 +87,9 @@ public class PageController {
     }
 
     @GetMapping("/logout")
-    public String logout(HttpSession session) {
+    public String logout(HttpSession session, HttpServletResponse response) {
         session.invalidate();
+        response.setHeader("Set-Cookie", "jwtToken=; HttpOnly; Path=/; Max-Age=0; SameSite=Strict");
         return "redirect:/login";
     }
 }

@@ -3,6 +3,7 @@ package com.example.chat_app.model;
 import jakarta.persistence.*;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 
 
 @Entity
@@ -23,7 +24,7 @@ public class Message {
     private String content;
 
     @Column(name = "created_at", nullable = false)
-    private Timestamp createdAt;
+    private Instant createdAt;
 
     @Column(name = "is_read", nullable = false)
     private boolean isRead;
@@ -32,14 +33,14 @@ public class Message {
 
     }
 
-    public Message(Long chatId, Long userId, String content, Timestamp createdAt) {
+    public Message(Long chatId, Long userId, String content, Instant createdAt) {
         this.chatId = chatId;
         this.userId = userId;
         this.content = content;
         this.createdAt = createdAt;
     }
 
-    public Message(Long id, Long chatId, Long userId, String content, Timestamp createdAt, boolean isRead) {
+    public Message(Long id, Long chatId, Long userId, String content, Instant createdAt, boolean isRead) {
         this.id = id;
         this.chatId = chatId;
         this.userId = userId;
@@ -68,7 +69,7 @@ public class Message {
         return id;
     }
 
-    public Timestamp getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 

@@ -3,14 +3,15 @@ package com.example.chat_app.model.response;
 import com.example.chat_app.model.DTO.ChatDTO;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 
 public class ChatsResponse {
     private List<ChatDTO> chats;
     private String errorMessage;
-    private Timestamp lastChatDate;
+    private Instant lastChatDate;
 
-    public ChatsResponse(List<ChatDTO> chats, String errorMessage, Timestamp lastChatDate) {
+    public ChatsResponse(List<ChatDTO> chats, String errorMessage, Instant lastChatDate) {
         this.chats = chats;
         this.errorMessage = errorMessage;
         this.lastChatDate = lastChatDate;
@@ -32,11 +33,11 @@ public class ChatsResponse {
         this.errorMessage = errorMessage;
     }
 
-    public Timestamp getLastChatDate() {
+    public Instant getLastChatDate() {
         return lastChatDate;
     }
 
-    public void setLastChatDate(Timestamp lastChatDate) {
+    public void setLastChatDate(Instant lastChatDate) {
         this.lastChatDate = lastChatDate;
     }
 }

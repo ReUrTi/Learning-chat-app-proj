@@ -46,11 +46,6 @@ public class AllService {
         return true;
     }
 
-    public boolean authenticate(String username, String password) {
-        User user = userRepository.findByUsername(username).orElse(null);
-        return user != null && passwordEncoder.matches(password, user.getPassword());
-    }
-
     public String blockUser(Long blocker_id, Long blocked_id) {
         if(Objects.equals(blocked_id, blocker_id)) return "You cannot block yourself.";
 
