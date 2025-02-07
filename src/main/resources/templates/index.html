@@ -132,12 +132,12 @@
         stompClient.connect({}, function(frame) {
             console.log('STOMP has been connected:', frame);
             sessionStorage.setItem('stompConnected', 'true');
-            stompClient.send("/app/connect", {}, '');
+            stompClient.send("/app/connect", {});
             stompClient.subscribe('/topic/activity', (message) => {
                 console.log('Heartbeat response:', message.body);
             });
             setInterval(() => {
-                stompClient.send("/app/heartbeat", {}, '');
+                stompClient.send("/app/heartbeat", {});
             }, 10000);
 
             stompClient.subscribe('/user/topic/chats', handleChats);

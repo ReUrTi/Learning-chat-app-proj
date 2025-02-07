@@ -1,5 +1,6 @@
 package com.example.chat_app.security;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -27,9 +28,12 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-        String username = null;
-        String jwt = null;
+        if (SecurityContextHolder.getContext().getAuthentication() != null) {
+            chain.doFilter(request, response);
+            return;
+        }
 
+        String jwt = null;
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
@@ -40,20 +44,39 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             }
         }
 
-        if (jwt != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            username = jwtUtil.extractUsername(jwt);
-
-            if (username != null) {
-                UserDetails userDetails = this.detailsService.loadUserByUsername(username);
-                if (jwtUtil.validateToken(jwt, userDetails)) {
-                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities());
-                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
+        try {
+            if (jwt != null) {
+                String username = jwtUtil.extractUsername(jwt);
+                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    UserDetails userDetails = detailsService.loadUserByUsername(username);
+                    if (jwtUtil.validateToken(jwt, userDetails)) {
+                        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                                userDetails, null, userDetails.getAuthorities());
+                        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
                 }
             }
+        } catch (ExpiredJwtException e) {
+            handleExpiredToken(response);
+            return;
+        } catch (Exception e) {
+            handleInvalidToken(response);
+            return;
         }
 
         chain.doFilter(request, response);
+    }
+
+    private void handleExpiredToken(HttpServletResponse response) throws IOException {
+        response.setHeader("Set-Cookie", "jwtToken=; HttpOnly; Path=/; Max-Age=0; SameSite=Strict");
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.getWriter().write("Token expired");
+    }
+
+    private void handleInvalidToken(HttpServletResponse response) throws IOException {
+        response.setHeader("Set-Cookie", "jwtToken=; HttpOnly; Path=/; Max-Age=0; SameSite=Strict");
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.getWriter().write("Invalid token");
     }
 }
