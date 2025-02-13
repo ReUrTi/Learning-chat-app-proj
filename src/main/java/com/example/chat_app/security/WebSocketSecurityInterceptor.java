@@ -9,6 +9,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
 import java.util.Objects;
 
 @Component
@@ -19,11 +20,18 @@ public class WebSocketSecurityInterceptor implements ChannelInterceptor {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-            UsernamePasswordAuthenticationToken authentication =
-                    (UsernamePasswordAuthenticationToken) Objects.requireNonNull(accessor.getSessionAttributes()).get("authentication");
+            Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
+            if (sessionAttributes != null) {
+                UsernamePasswordAuthenticationToken authentication =
+                        (UsernamePasswordAuthenticationToken) sessionAttributes.get("authentication");
 
-            if (authentication != null) {
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                if (authentication != null) {
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                } else {
+                    throw new IllegalArgumentException("Authentication not found in session attributes");
+                }
+            } else {
+                throw new IllegalArgumentException("Session attributes are null");
             }
         }
 

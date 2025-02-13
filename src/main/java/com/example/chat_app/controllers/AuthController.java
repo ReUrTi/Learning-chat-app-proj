@@ -51,7 +51,7 @@ public class AuthController {
             );
             final UserDetails userDetails = detailsService.loadUserByUsername(authenticationRequest.getUsername());
             final String jwt = jwtUtil.generateToken(userDetails);
-            response.setHeader("Set-Cookie", "jwtToken=" + jwt + "; HttpOnly; Path=/; SameSite=Strict");
+            response.setHeader("Set-Cookie", "jwtToken=" + jwt + "; HttpOnly; Path=/; SameSite=None; Secure");
 
             return ResponseEntity.ok("Login successful");
         } catch (Exception e) {

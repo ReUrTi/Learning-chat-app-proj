@@ -69,14 +69,16 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     }
 
     private void handleExpiredToken(HttpServletResponse response) throws IOException {
-        response.setHeader("Set-Cookie", "jwtToken=; HttpOnly; Path=/; Max-Age=0; SameSite=Strict");
+        response.setHeader("Set-Cookie", "jwtToken=; HttpOnly; Path=/; Max-Age=0; SameSite=None; Secure");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.getWriter().write("Token expired");
+        response.sendRedirect("/logout");
     }
 
     private void handleInvalidToken(HttpServletResponse response) throws IOException {
-        response.setHeader("Set-Cookie", "jwtToken=; HttpOnly; Path=/; Max-Age=0; SameSite=Strict");
+        response.setHeader("Set-Cookie", "jwtToken=; HttpOnly; Path=/; Max-Age=0; SameSite=None; Secure");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.getWriter().write("Invalid token");
+        response.sendRedirect("/logout");
     }
 }

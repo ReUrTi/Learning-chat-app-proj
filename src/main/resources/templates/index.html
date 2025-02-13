@@ -117,7 +117,7 @@
     let stompClient = null;
 
     function initWebSocket() {
-        const socket = new SockJS('/ws');
+        const socket = new SockJS('http://localhost:8080/ws');
         stompClient = Stomp.over(socket);
 
         if (sessionStorage.getItem('stompConnected')) {
