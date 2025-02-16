@@ -3,13 +3,14 @@ package com.example.chat_app.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtUtil {
@@ -23,6 +24,7 @@ public class JwtUtil {
         if (userDetails instanceof CustomUserDetails customUserDetails) {
             claims.put("userId", customUserDetails.getId());
             claims.put("nickname", customUserDetails.getNickname());
+            claims.put("roles", customUserDetails.getAuthorities());
         }
         return createToken(claims, userDetails.getUsername());
     }
@@ -47,6 +49,19 @@ public class JwtUtil {
 
     public String extractNickname(String token) {
         return extractClaim(token, claims -> claims.get("nickname", String.class));
+    }
+
+    public List<GrantedAuthority> extractAuthorities(String token) {
+        Claims claims = extractAllClaims(token);
+        List<String> roles = claims.get("roles", List.class);
+
+        if (roles == null) {
+            return Collections.emptyList();
+        }
+
+        return roles.stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                .collect(Collectors.toList());
     }
 
     public Date extractExpiration(String token) {

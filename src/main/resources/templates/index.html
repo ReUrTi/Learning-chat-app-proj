@@ -117,7 +117,7 @@
     let stompClient = null;
 
     function initWebSocket() {
-        const socket = new SockJS('http://localhost:8080/ws');
+        const socket = new SockJS('https://localhost/ws');
         stompClient = Stomp.over(socket);
 
         if (sessionStorage.getItem('stompConnected')) {
@@ -131,13 +131,14 @@
 
         stompClient.connect({}, function(frame) {
             console.log('STOMP has been connected:', frame);
+            console.log('Cookies:', document.cookie);
             sessionStorage.setItem('stompConnected', 'true');
-            stompClient.send("/app/connect", {});
+            stompClient.send("/app/connect", {}, JSON.stringify());
             stompClient.subscribe('/topic/activity', (message) => {
                 console.log('Heartbeat response:', message.body);
             });
             setInterval(() => {
-                stompClient.send("/app/heartbeat", {});
+                stompClient.send("/app/heartbeat", {}, JSON.stringify());
             }, 10000);
 
             stompClient.subscribe('/user/topic/chats', handleChats);
